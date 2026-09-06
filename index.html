@@ -3,190 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YKS Copilot</title>
+    <title>YKS Copilot Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --primary-color: #5c5be5;
-            --primary-light: #f0f3ff;
-            --bg-color: #f6f8fa;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-color: #1e293b;
+            --text-color: #0f172a;
             --text-muted: #64748b;
-            --success-color: #10b981;
             --border-color: #e2e8f0;
-            --sidebar-width: 240px;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            
+            /* Status Colors */
+            --partial-bg: #f0fdf4;
+            --partial-border: #86efac;
+            --partial-text: #166534;
+            
+            --full-bg: #22c55e;
+            --full-text: #ffffff;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; min-height: 100vh; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: all 0.2s ease; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; min-height: 100vh; overflow-x: hidden; }
 
-        /* Sidebar */
+        /* Collapsible Sidebar */
         .sidebar {
             width: var(--sidebar-width);
-            background-color: #0d1117;
+            background-color: #0f172a;
             color: #ffffff;
             padding: 20px 0;
             display: flex;
             flex-direction: column;
             position: fixed;
             height: 100vh;
-            overflow-y: auto;
             z-index: 1000;
+            overflow-x: hidden;
         }
 
-        .sidebar-brand { padding: 10px 25px 20px; font-size: 1.2rem; font-weight: 700; border-bottom: 1px solid #21262d; display: flex; align-items: center; gap: 10px; color: #58a6ff; }
+        body.sidebar-collapsed .sidebar {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-brand {
+            padding: 10px 20px 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #818cf8;
+            white-space: nowrap;
+        }
+
+        .toggle-btn {
+            background: #1e293b;
+            border: none;
+            color: #ffffff;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .sidebar-menu { list-style: none; margin-top: 15px; }
-        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 25px; color: #8b949e; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: 0.2s; }
-        .sidebar-menu li a:hover, .sidebar-menu li.active a { background-color: #161b22; color: #ffffff; border-left: 4px solid var(--primary-color); }
-        .sidebar-menu i { margin-right: 12px; width: 20px; text-align: center; }
+        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 22px; color: #94a3b8; text-decoration: none; font-size: 0.9rem; font-weight: 500; white-space: nowrap; }
+        .sidebar-menu li a:hover, .sidebar-menu li.active a { background-color: #1e293b; color: #ffffff; border-left: 4px solid var(--primary-color); }
+        .sidebar-menu i { margin-right: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
 
-        /* Main Content */
-        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 25px; width: calc(100% - var(--sidebar-width)); }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: white; padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        body.sidebar-collapsed .menu-text, 
+        body.sidebar-collapsed .brand-text { display: none; }
 
-        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.88rem; transition: 0.2s; }
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 20px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        body.sidebar-collapsed .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+            width: calc(100% - var(--sidebar-collapsed-width));
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn { padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; }
         .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-primary:hover { background-color: #4b4acf; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
         .btn-outline { background-color: white; border: 1px solid var(--border-color); color: var(--text-color); }
         .btn-outline:hover { background-color: #f1f5f9; }
 
         .page-view { display: none; }
         .page-view.active { display: block; }
 
-        /* Form Card */
-        .inline-form-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
-        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; background: #fff; outline: none; }
+        /* Forms */
+        .inline-form-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.88rem; outline: none; }
 
-        /* Checkbox Grids for Days */
-        .days-checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
-        .day-checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 600; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; }
-        .day-checkbox-item input { cursor: pointer; }
+        .days-checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .day-checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); cursor: pointer; }
 
-        /* Schedule Grid */
-        .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; overflow-x: auto; }
-        .day-column { background: #f8fafc; border-radius: 10px; padding: 12px; min-width: 145px; border: 1px solid var(--border-color); }
-        .day-header { text-align: center; font-weight: 700; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #cbd5e1; color: #334155; }
+        /* Weekly Schedule Container (Responsive Grid) */
+        .schedule-export-container {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
 
-        /* Task Cards */
-        .task-card { background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); font-size: 0.82rem; cursor: pointer; border-left: 4px solid var(--primary-color); }
-        .task-card:hover { transform: translateY(-2px); }
-        .task-card.completed { border-left-color: var(--success-color); background: #f0fdf4; }
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
 
-        /* Modal Redesign */
+        .day-column { background: #f8fafc; border-radius: 8px; padding: 8px; border: 1px solid var(--border-color); min-width: 0; }
+        .day-header { text-align: center; font-weight: 700; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 2px solid #cbd5e1; color: #334155; font-size: 0.85rem; }
+
+        /* Dynamic Task Cards with Smart States */
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            font-size: 0.78rem;
+            cursor: pointer;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+            word-break: break-word;
+        }
+
+        /* State: Partial Completed */
+        .task-card.state-partial {
+            background-color: var(--partial-bg);
+            border-left-color: #22c55e;
+            border: 1px solid var(--partial-border);
+            border-left-width: 4px;
+        }
+
+        /* State: Fully Completed */
+        .task-card.state-full {
+            background-color: var(--full-bg);
+            color: var(--full-text);
+            border-left-color: #15803d;
+        }
+
+        .task-card.state-full .task-subtext,
+        .task-card.state-full .task-tag {
+            color: #e2e8f0 !important;
+        }
+
+        .all-completed-badge {
+            display: inline-block;
+            background: #15803d;
+            color: #ffffff;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .modal-custom { background: white; border-radius: 16px; width: 100%; max-width: 520px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
+        .modal-custom { background: white; border-radius: 16px; width: 100%; max-width: 480px; padding: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         
-        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge { padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
         .badge-purple { background: #e0e7ff; color: #4338ca; }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
 
-        /* Day Selection Chips in Modal */
-        .modal-day-chips { display: flex; gap: 8px; margin: 15px 0; overflow-x: auto; padding-bottom: 5px; }
-        .modal-day-chip { flex: 0 0 auto; min-width: 65px; background: #f1f5f9; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer; border: 1px solid transparent; }
+        .modal-day-chips { display: flex; gap: 6px; margin: 12px 0; overflow-x: auto; padding-bottom: 4px; }
+        .modal-day-chip { flex: 0 0 auto; min-width: 55px; background: #f1f5f9; border-radius: 6px; padding: 6px; text-align: center; cursor: pointer; border: 1px solid transparent; }
         .modal-day-chip.active { background: #e0e7ff; border-color: var(--primary-color); }
-        .modal-day-chip .day-code { font-weight: bold; font-size: 0.85rem; }
-        .modal-day-chip .day-val { font-size: 0.7rem; color: var(--text-muted); }
 
-        .modal-add-day-btn { flex: 0 0 auto; padding: 0 12px; background: #eef2ff; border: 1px dashed var(--primary-color); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; color: var(--primary-color); font-weight: 600; font-size: 0.75rem; }
+        .modal-add-day-btn { flex: 0 0 auto; padding: 0 10px; background: #eef2ff; border: 1px dashed var(--primary-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary-color); font-weight: 600; font-size: 0.72rem; }
 
-        .modal-info-row { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 8px; color: var(--text-muted); }
-        .modal-info-row strong { color: var(--text-color); }
-
-        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; }
-        .item-card { background: white; border-radius: 12px; border: 1px solid var(--border-color); padding: 16px; }
+        /* Print Override for PDF Export */
+        .pdf-export-mode {
+            width: 1100px !important;
+            padding: 20px !important;
+            background: white !important;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Navigasyon -->
-    <nav class="sidebar">
-        <div class="sidebar-brand"><i class="fa-solid fa-cat"></i> YKS Copilot</div>
+    <!-- Responsive & Collapsible Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-text"><i class="fa-solid fa-robot"></i> YKS Copilot</span>
+            <button class="toggle-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        </div>
         <ul class="sidebar-menu">
-            <li class="active"><a href="#" onclick="switchView('view-home', this)"><i class="fa-solid fa-house"></i> Ana Sayfa</a></li>
-            <li><a href="#" onclick="switchView('view-program', this)"><i class="fa-solid fa-calendar-check"></i> Programlarım</a></li>
-            <li><a href="#" onclick="switchView('view-takvim', this)"><i class="fa-solid fa-calendar-days"></i> Takvim & Planlar</a></li>
-            <li><a href="#" onclick="switchView('view-konu', this)"><i class="fa-solid fa-book-open"></i> Konu Öğren & Kaynaklar</a></li>
-            <li><a href="#" onclick="switchView('view-hata', this)"><i class="fa-solid fa-book-bookmark"></i> Soru Sor / Hata Defteri</a></li>
-            <li><a href="#" onclick="switchView('view-deneme', this)"><i class="fa-solid fa-chart-line"></i> Denemeler & Netler</a></li>
-            <li><a href="#" onclick="switchView('view-sayac', this)"><i class="fa-solid fa-clock"></i> Çalışma Sayacı</a></li>
-            <li><a href="#" onclick="switchView('view-analitik', this)"><i class="fa-solid fa-chart-pie"></i> Analitikler</a></li>
+            <li class="active"><a href="#" onclick="switchView('view-program', this)"><i class="fa-solid fa-calendar-check"></i> <span class="menu-text">Haftalık Program</span></a></li>
+            <li><a href="#" onclick="switchView('view-konu', this)"><i class="fa-solid fa-book-open"></i> <span class="menu-text">Dersler & Kaynaklar</span></a></li>
+            <li><a href="#" onclick="switchView('view-deneme', this)"><i class="fa-solid fa-chart-line"></i> <span class="menu-text">Deneme Analizi</span></a></li>
+            <li><a href="#" onclick="switchView('view-sayac', this)"><i class="fa-solid fa-clock"></i> <span class="menu-text">Sayaç & Hedef</span></a></li>
         </ul>
     </nav>
 
-    <!-- İçerik -->
-    <div class="main-content" id="printable-content">
+    <!-- Main Content -->
+    <div class="main-content">
         <div class="top-header">
-            <span style="background: #e0e7ff; color: #4338ca; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
-                YKS Hazırlık Paneli
-            </span>
+            <div style="font-weight:700; font-size:1rem; color:var(--primary-color);">YKS Kişisel Program Paneli</div>
             <div style="display:flex; gap:10px;">
-                <button class="btn btn-outline" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i> Tam Ekran</button>
-                <button class="btn btn-primary" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i> PDF İndir</button>
+                <button class="btn btn-primary" onclick="exportSchedulePDF()"><i class="fa-solid fa-file-pdf"></i> Programı Görsel PDF İndir</button>
             </div>
         </div>
 
-        <!-- Ana Sayfa -->
-        <div id="view-home" class="page-view active">
-            <div class="inline-form-card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h2>Hoş Geldin!</h2>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:4px;">Gelişmiş program yöneticisi, tam ders/konu listesi ve hoca/kaynak kütüphanesi hazır.</p>
-                </div>
-            </div>
-            <div class="grid-3">
-                <div class="item-card" onclick="switchView('view-program')" style="cursor:pointer;"><h4>Haftalık Program</h4><p style="color:var(--text-muted); font-size:0.85rem; margin-top:6px;">Çoklu gün seçimi ve dinamik gün kopyalama ile görev oluştur.</p></div>
-                <div class="item-card" onclick="switchView('view-deneme')" style="cursor:pointer;"><h4>Deneme Analizi</h4><p style="color:var(--text-muted); font-size:0.85rem; margin-top:6px;">Ders ders netlerini kaydet ve ÖSYM puanını hesapla.</p></div>
-                <div class="item-card" onclick="switchView('view-konu')" style="cursor:pointer;"><h4>Hocalar & Kaynaklar</h4><p style="color:var(--text-muted); font-size:0.85rem; margin-top:6px;">Önerilen YouTube hocaları ve popüler yayın kütüphanesi.</p></div>
-            </div>
-        </div>
-
-        <!-- Programlar -->
-        <div id="view-program" class="page-view">
-            <h2>Haftalık Program Yönetimi</h2>
-            
-            <div class="inline-form-card" style="margin-top:15px;">
-                <h4>Yeni Görev / Program Ekle</h4>
+        <!-- Haftalık Program Sekmesi -->
+        <div id="view-program" class="page-view active">
+            <div class="inline-form-card">
+                <h4 style="font-size:0.95rem;"><i class="fa-solid fa-plus-circle"></i> Yeni Görev Oluştur</h4>
                 <form id="program-form">
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label>Sınav Türü</label>
-                            <select class="form-control" id="form-sinav" onchange="onSinavOrDersChange()"><option>TYT</option><option>AYT</option></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Ders</label>
-                            <select class="form-control" id="form-ders" onchange="onSinavOrDersChange()"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Konu</label>
-                            <select class="form-control" id="form-konu"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Hoca</label>
-                            <select class="form-control" id="form-hoca"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Kaynak / Kitap</label>
-                            <select class="form-control" id="form-kaynak"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Hedef Test / Soru Miktarı</label>
-                            <input type="number" class="form-control" id="form-miktar" placeholder="Örn: 3">
-                        </div>
-                        <div class="form-group">
-                            <label>Hedef Süre</label>
-                            <input type="text" class="form-control" id="form-sure" placeholder="Örn: 45 Dk veya 1sa 15dk">
-                        </div>
+                        <div class="form-group"><label>Sınav Türü</label><select class="form-control" id="form-sinav" onchange="onSinavOrDersChange()"><option>TYT</option><option>AYT</option></select></div>
+                        <div class="form-group"><label>Ders</label><select class="form-control" id="form-ders" onchange="onSinavOrDersChange()"></select></div>
+                        <div class="form-group"><label>Konu</label><select class="form-control" id="form-konu"></select></div>
+                        <div class="form-group"><label>Hoca</label><select class="form-control" id="form-hoca"></select></div>
+                        <div class="form-group"><label>Kaynak Kitap</label><select class="form-control" id="form-kaynak"></select></div>
+                        <div class="form-group"><label>Hedef Test/Soru</label><input type="number" class="form-control" id="form-miktar" placeholder="Örn: 3"></div>
+                        <div class="form-group"><label>Hedef Süre</label><input type="text" class="form-control" id="form-sure" placeholder="Örn: 45 Dk"></div>
                     </div>
 
-                    <!-- 7 Gün Seçenek Kutucukları -->
-                    <div style="margin-top:15px;">
-                        <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">EKLENECEK GÜNLER (İstediğin günleri tikle):</label>
+                    <div style="margin-top:12px;">
+                        <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">EKLENECEK GÜNLER:</label>
                         <div class="days-checkbox-group" id="form-days-checkboxes">
                             <label class="day-checkbox-item"><input type="checkbox" value="Pazartesi" checked> Pazartesi</label>
                             <label class="day-checkbox-item"><input type="checkbox" value="Salı"> Salı</label>
@@ -198,172 +261,56 @@
                         </div>
                     </div>
 
-                    <div style="margin-top:15px; text-align:right;">
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Görevi Kaydet</button>
+                    <div style="margin-top:12px; text-align:right;">
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Görevi Kaydet</button>
                     </div>
                 </form>
             </div>
 
-            <!-- Takvim Görünümü -->
-            <div class="schedule-grid" id="weekly-schedule"></div>
-        </div>
-
-        <!-- Konu Öğren & Kaynaklar -->
-        <div id="view-konu" class="page-view">
-            <h2>Konu Öğren, Hocalar & Kaynaklar</h2>
-            <p style="color:var(--text-muted); font-size:0.9rem; margin-top:4px; margin-bottom:15px;">Tüm ders kütüphanesi, resmi EBA/MEB materyalleri ve popüler hocalar.</p>
-            
-            <div class="grid-2">
-                <div class="item-card">
-                    <h4><i class="fa-solid fa-graduation-cap" style="color:var(--primary-color);"></i> Önerilen Hocalar</h4>
-                    <div id="konu-hoca-listesi" style="font-size:0.85rem; margin-top:10px; color:var(--text-muted); display:flex; flex-direction:column; gap:6px;"></div>
-                </div>
-                <div class="item-card">
-                    <h4><i class="fa-solid fa-book" style="color:var(--primary-color);"></i> Kaynak Kitap & Denemeler</h4>
-                    <div id="konu-kaynak-listesi" style="font-size:0.85rem; margin-top:10px; color:var(--text-muted); display:flex; flex-direction:column; gap:6px;"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Deneme & Net Hesabı -->
-        <div id="view-deneme" class="page-view">
-            <h2>Deneme Analizi & ÖSYM Puan Hesabı</h2>
-            
-            <div class="inline-form-card" style="margin-top:15px;">
-                <h4>Yeni Deneme Kaydı</h4>
-                <div class="form-grid">
-                    <div class="form-group"><label>Deneme / Yayın Adı</label><input type="text" id="deneme-adi" class="form-control" placeholder="Örn: 3D TYT Genel Deneme"></div>
-                    <div class="form-group"><label>Sınav Türü</label><select id="deneme-tur" class="form-control"><option>TYT</option><option>AYT</option></select></div>
-                </div>
-
-                <h5 style="margin-top:15px; font-size:0.88rem;">Ders Doğru / Yanlış Sayıları</h5>
-                <div class="grid-2" style="margin-top:10px;">
-                    <div style="background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="font-size:0.82rem;">Türkçe (40 Soru)</strong>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <input type="number" id="tr-d" placeholder="Doğru" class="form-control">
-                            <input type="number" id="tr-y" placeholder="Yanlış" class="form-control">
-                        </div>
-                    </div>
-                    <div style="background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="font-size:0.82rem;">Sosyal (20 Soru)</strong>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <input type="number" id="sos-d" placeholder="Doğru" class="form-control">
-                            <input type="number" id="sos-y" placeholder="Yanlış" class="form-control">
-                        </div>
-                    </div>
-                    <div style="background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="font-size:0.82rem;">Matematik (40 Soru)</strong>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <input type="number" id="mat-d" placeholder="Doğru" class="form-control">
-                            <input type="number" id="mat-y" placeholder="Yanlış" class="form-control">
-                        </div>
-                    </div>
-                    <div style="background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="font-size:0.82rem;">Fen Bilimleri (20 Soru)</strong>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <input type="number" id="fen-d" placeholder="Doğru" class="form-control">
-                            <input type="number" id="fen-y" placeholder="Yanlış" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top:15px; text-align:right;">
-                    <button class="btn btn-primary" onclick="addDeneme()"><i class="fa-solid fa-calculator"></i> Net & Puan Hesapla Kaydet</button>
-                </div>
-            </div>
-
-            <div class="grid-2" id="deneme-listesi"></div>
-        </div>
-
-        <!-- Çalışma Sayacı -->
-        <div id="view-sayac" class="page-view">
-            <h2>Çalışma Sayacı & Hedef</h2>
-            <div class="grid-2" style="margin-top:15px;">
-                <div class="item-card" style="text-align:center;">
-                    <h4>Pomodoro Kronometre</h4>
-                    <h1 id="timer-display" style="font-size: 3.5rem; color: var(--primary-color); margin: 15px 0;">25:00</h1>
-                    <div style="display:flex; justify-content:center; gap:8px;">
-                        <button class="btn btn-primary" onclick="startTimer()">Başlat</button>
-                        <button class="btn btn-outline" onclick="pauseTimer()">Duraklat</button>
-                        <button class="btn btn-outline" onclick="resetTimer()">Sıfırla</button>
-                    </div>
-                </div>
-
-                <div class="item-card">
-                    <h4>Günlük Çalışma Hedefim</h4>
-                    <div style="margin-top:15px;">
-                        <label style="font-size:0.82rem; color:var(--text-muted);">Günlük Hedef (Saat)</label>
-                        <input type="number" id="target-hours" class="form-control" value="6" style="margin-top:4px;">
-                        
-                        <label style="font-size:0.82rem; color:var(--text-muted); margin-top:12px; display:block;">Elle Süre Ekle (Dakika)</label>
-                        <div style="display:flex; gap:8px; margin-top:4px;">
-                            <input type="number" id="manual-mins" class="form-control" placeholder="Örn: 45">
-                            <button class="btn btn-primary" onclick="addManualTime()">Ekle</button>
-                        </div>
-
-                        <div style="margin-top:20px; background:#f8fafc; padding:12px; border-radius:8px;">
-                            <div style="font-size:0.85rem;">Bugün Tamamlanan: <strong id="total-worked-time">0 dk</strong></div>
-                            <div style="font-size:0.85rem; margin-top:4px;">Hedefe Ulaşma: <strong id="target-percentage">%0</strong></div>
-                        </div>
-                    </div>
-                </div>
+            <!-- PDF İndirmede Sadece Burası Çekilecek -->
+            <div class="schedule-export-container" id="schedule-to-export">
+                <div style="margin-bottom:12px; font-weight:bold; font-size:1.1rem; text-align:center; color:#1e293b;" id="export-title">🎯 YKS Haftalık Çalışma Programım</div>
+                <div class="schedule-grid" id="weekly-schedule"></div>
             </div>
         </div>
 
         <!-- Diğer Sekmeler -->
-        <div id="view-takvim" class="page-view"><h2>Takvim & Planlar</h2><p style="margin-top:10px; color:var(--text-muted);">Aylık ve haftalık stratejik planlarınız.</p></div>
-        <div id="view-hata" class="page-view"><h2>Hata Defteri</h2><p style="margin-top:10px; color:var(--text-muted);">Yapamadığınız soruları ve soru çözümlerini buraya kaydedin.</p></div>
-        <div id="view-analitik" class="page-view"><h2>Gelişim Analizi</h2><p style="margin-top:10px; color:var(--text-muted);">Haftalık ders çalışma süreleri ve soru istatistikleri.</p></div>
+        <div id="view-konu" class="page-view">
+            <h2>Dersler ve Kaynaklar</h2>
+            <p style="color:var(--text-muted); margin-top:5px;">Resmi müfredat konuları ve YouTube hocaları.</p>
+        </div>
+        <div id="view-deneme" class="page-view">
+            <h2>Deneme Analizi</h2>
+            <p style="color:var(--text-muted); margin-top:5px;">Netlerinizi kaydedin.</p>
+        </div>
+        <div id="view-sayac" class="page-view">
+            <h2>Çalışma Sayacı</h2>
+            <p style="color:var(--text-muted); margin-top:5px;">Pomodoro ve günlük süre takibi.</p>
+        </div>
     </div>
 
-    <!-- Detay & Gün Aktarma Modalı -->
+    <!-- Görev Güncelleme & İlerleme Modalı -->
     <div class="modal-overlay" id="task-detail-modal">
         <div class="modal-custom">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <i class="fa-solid fa-list-check" style="color:var(--text-muted); font-size:1.2rem;"></i>
-                <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.2rem;" onclick="closeTaskDetailModal()"></i>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="badge badge-purple" id="modal-badge-ders">TYT Matematik</span>
+                <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.1rem;" onclick="closeTaskDetailModal()"></i>
             </div>
 
-            <h3 id="modal-task-title" style="font-size:1.2rem; margin-bottom:8px;">TYT Matematik - Problemler</h3>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div style="display:flex; gap:6px;">
-                    <span class="badge badge-purple" id="modal-badge-hoca">Mert Hoca</span>
-                    <span class="badge badge-blue" id="modal-badge-ders">TYT - Matematik</span>
-                </div>
-                <span id="modal-kaynak-adi" style="font-size:0.8rem; color:var(--text-muted);">3D TYT Matematik Soru Bankası</span>
-            </div>
+            <h3 id="modal-task-title" style="font-size:1.1rem; margin-bottom:4px;">Problemler</h3>
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;" id="modal-task-sub">Mert Hoca • 3D Yayınları</div>
 
-            <!-- Miktar ve Süre Bilgileri -->
-            <div style="margin-bottom:15px; background: #f8fafc; padding:12px; border-radius:10px;">
-                <div class="modal-info-row"><span><i class="fa-regular fa-clock"></i> Hedef Süre</span> <strong id="modal-toplam-sure">45 Dk</strong></div>
-                <div class="modal-info-row"><span><i class="fa-solid fa-bullseye"></i> Hedef Miktar</span> <strong id="modal-toplam-miktar">3 Test</strong></div>
-                <div class="modal-info-row"><span><i class="fa-solid fa-chart-line"></i> Genel İlerleme</span> <span class="badge badge-purple" id="modal-toplam-ilerleme">%0</span></div>
-            </div>
+            <div class="modal-day-chips" id="modal-day-chips-container"></div>
 
-            <div style="display:flex; gap:15px; font-size:0.8rem; margin-bottom:15px;">
-                <a href="#" style="color:var(--text-muted); text-decoration:none;" onclick="resetTaskProgress()"><i class="fa-solid fa-rotate-left"></i> İlerlemeyi sıfırla</a>
-                <a href="#" style="color:#ef4444; text-decoration:none;" onclick="removeCurrentDay()"><i class="fa-solid fa-xmark"></i> <span id="modal-remove-day-text">Bu günden kaldır</span></a>
-            </div>
-
-            <hr style="border:none; border-top:1px solid var(--border-color); margin-bottom:15px;">
-
-            <!-- Ekli Günler Listesi ve Gün Ekle/Aktar Butonu -->
-            <label style="font-size:0.82rem; font-weight:600; color:var(--text-muted);">EKLİ GÜNLER VE İLERLEME</label>
-            <div class="modal-day-chips" id="modal-day-chips-container">
-                <!-- Gün Chip'leri Dinamik Dolacak -->
-            </div>
-
-            <!-- Seçili Gün İlerleme Bölümü -->
-            <div style="margin-bottom:15px;">
-                <h5 id="modal-day-progress-title" style="font-size:0.9rem; margin-bottom:10px;">Pazartesi Günü Tamamlanan Test</h5>
+            <div style="margin:15px 0; background:#f8fafc; padding:12px; border-radius:10px;">
+                <div id="modal-day-progress-title" style="font-weight:600; font-size:0.85rem; margin-bottom:8px;">Pazartesi Günü Tamamlanan</div>
                 <div style="display:flex; align-items:center; gap:10px;">
                     <input type="range" id="modal-slider" style="flex:1;" min="0" max="10" value="0" oninput="onSliderInputChange(this.value)">
-                    <div style="border:1px solid var(--border-color); border-radius:8px; padding:6px 12px; font-weight:bold; font-size:0.85rem;" id="slider-val-disp">0 Test</div>
+                    <div style="border:1px solid var(--border-color); border-radius:6px; padding:4px 10px; font-weight:bold; font-size:0.85rem; background:white;" id="slider-val-disp">0 Test</div>
                 </div>
             </div>
 
-            <div style="display:flex; gap:10px; margin-top:20px;">
+            <div style="display:flex; gap:10px;">
                 <button class="btn btn-outline" style="flex:1; justify-content:center;" onclick="closeTaskDetailModal()">Kapat</button>
                 <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="saveTaskModalProgress()">Kaydet</button>
             </div>
@@ -371,82 +318,28 @@
     </div>
 
     <script>
-        // PDF'deki BÜTÜN DERSLER & KONULAR LİSTESİ
+        // Müfredat ve İçerikler
         const TumKonular = {
             "TYT": {
-                "Türkçe": [
-                    "Sözcükte Anlam", "Cümlede Anlam", "Paragrafta Anlam", "Anlatım Biçimleri", "Ses Bilgisi", 
-                    "Yazım Kuralları", "Noktalama İşaretleri", "Sözcükte Yapı", "Sözcük Türleri", "Edat-Bağlaç-Ünlem", 
-                    "Fiil-Ek Fiil", "Fiilimsi", "Fiilde Çatı", "Deyim ve Atasözü", "Cümlenin Öğeleri", "Cümle Türleri", "Anlatım Bozuklukları"
-                ],
-                "Matematik": [
-                    "Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB-EKOK", "Rasyonel Sayılar-Ondalık Sayılar", 
-                    "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran-Orantı", 
-                    "Denklem Çözme", "Problemler", "Kümeler-Kartezyen Çarpımı", "Mantık", "Fonksiyonlar", "Polinomlar", 
-                    "2. Dereceden Denklemler", "Permütasyon", "Kombinasyon", "Binom", "Olasılık", "Veri Analizi/İstatistik"
-                ],
-                "Geometri": [
-                    "Doğruda ve Üçgende Açılar", "Dik ve Özel Üçgenler", "Dik Üçgende Trigonometrik Bağıntılar", "İkizkenar ve Eşkenar Üçgen", 
-                    "Üçgende Alanlar", "Üçgende Açıortay Bağıntıları", "Üçgende Kenarortay Bağıntıları", "Üçgende Eşlik ve Benzerlik", 
-                    "Üçgende Açı-Kenar Bağıntıları", "Çokgenler", "Dörtgenler", "Yamuk", "Paralelkenar", "Eşkenar Dörtgen - Deltoid", 
-                    "Dikdörtgen", "Kare", "Çemberde Açılar", "Çemberde Uzunluk", "Dairenin Çevresi ve Alanı", "Prizmalar", "Piramitler", "Küre", "Katı Cisimler"
-                ],
-                "Fizik": [
-                    "Fizik Bilimine Giriş", "Madde ve Özellikleri", "Kuvvet ve Hareket", "İş-Güç ve Enerji I-II", "Isı-Sıcaklık ve Genleşme", 
-                    "Basınç", "Kaldırma Kuvveti", "Elektrik ve Manyetizma", "Dalgalar", "Optik"
-                ],
-                "Kimya": [
-                    "Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", "Maddenin Halleri", 
-                    "Doğa ve Kimya", "Kimyanın Temel Kanunları ve Hesaplamalar", "Karışımlar", "Asitler-Bazlar ve Tuzlar", "Kimya Her Yerde"
-                ],
-                "Biyoloji": [
-                    "Yaşam Bilimi Biyoloji", "Hücre", "Canlılar Dünyası", "Hücre Bölünmeleri ve Üreme", "Kalıtımın Genel İlkeleri", "Ekosistem Ekolojisi ve Güncel Çevre Sorunları"
-                ],
-                "Tarih": [
-                    "Tarih Bilimine Giriş", "Uygarlığın Doğuşu", "İlk Türk Devletleri", "İslam Tarihi", "Türk-İslam Devletleri", "Türkiye Tarihi", "Osmanlı Devleti Dönemleri", "20. YY Başları Osmanlı", "1. Dünya Savaşı ve Milli Mücadele", "Atatürkçülük ve İlkeler"
-                ],
-                "Coğrafya": [
-                    "İnsan ve Doğa", "Dünya'nın Şekli ve Hareketleri", "Coğrafi Konum", "Harita Bilgisi", "Atmosfer ve Sıcaklık", "İklimler", "Basınç ve Rüzgarlar", "İç/Dış Kuvvetler", "Nüfus-Göç-Yerleşme", "Doğal Afetler"
-                ],
-                "Felsefe & Din": [
-                    "Felsefenin Alanı", "Bilgi Felsefesi", "Varlık Felsefesi", "Ahlak Felsefesi", "Sanat Felsefesi", "Din Felsefesi / İnsan ve Din", "İbadet", "Hz. Muhammed'in Hayatı", "İslam Düşüncesi ve Yorumu"
-                ]
+                "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Yazım Kuralları", "Noktalama İşaretleri", "Dil Bilgisi"],
+                "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölünebilme", "EBOB-EKOK", "Rasyonel Sayılar", "Üslü-Köklü", "Problemler", "Kümeler", "Fonksiyonlar"],
+                "Geometri": ["Açılar ve Üçgenler", "Çokgenler", "Dörtgenler", "Çember ve Daire", "Katı Cisimler"],
+                "Fizik": ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Kuvvet ve Hareket", "İş-Güç-Enerji", "Elektrik", "Optik"],
+                "Kimya": ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Türler Arası Etkileşimler", "Karışımlar", "Asit-Baz-Tuz"],
+                "Biyoloji": ["Yaşam Bilimi Biyoloji", "Hücre", "Canlılar Dünyası", "Kalıtım", "Ekosistem"]
             },
             "AYT": {
-                "Matematik": [
-                    "Karmaşık Sayılar", "2. Dereceden Eşitsizlikler", "Parabol", "Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"
-                ],
-                "Geometri": [
-                    "Koordinat Düzlemi ve Noktanın Analitiği", "Doğrunun Analitiği", "Tekrar Eden/Dönen/Yansıyan Şekiller", "Dönüşümlerle Geometri", "Trigonometri", "Çemberin Analitiği"
-                ],
-                "Fizik": [
-                    "Vektörler", "Kuvvet-Tork ve Denge", "Kütle Merkezi", "Basit Makineler", "Atışlar", "İtme ve Momentum", "Elektrik Alan ve Potansiyel", "Paralel Levhalar ve Sığa", "Manyetik Alan ve Manyetik Kuvvet", "İndüksiyon-Alternatif Akım ve Transformatörler", "Çembersel Hareket", "Kütle Çekim ve Kepler Yasaları", "Basit Harmonik Hareket", "Dalga Mekaniği ve Elektromanyetik Dalgalar", "Atom Modelleri", "Büyük Patlama ve Radyoaktivite", "Modern Fizik", "Modern Fiziğin Teknolojideki Uygulamaları"
-                ],
-                "Kimya": [
-                    "Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler ve Çözünürlük", "Kimyasal Tepkimelerde Enerji", "Tepkimelerde Hız ve Denge", "Kimya ve Elektrik", "Karbon Kimyası", "Organik Kimya", "Enerji Kaynakları ve Bilimsel Gelişmeler"
-                ],
-                "Biyoloji": [
-                    "Sinir Sistemi", "Endokrin Sistem", "Duyu Organları", "Destek ve Hareket Sistemi", "Sindirim Sistemi", "Dolaşım ve Bağışıklık Sistemi", "Solunum Sistemi", "Üriner Sistem", "Üreme Sistemi ve Embriyonik Gelişim", "Komünite ve Popülasyon Ekolojisi", "Nükleik Asitler", "Genetik Şifre ve Protein Sentezi", "Canlılık ve Enerji", "Fotosentez ve Kemosentez", "Hücresel Solunum", "Bitki Biyolojisi", "Canlılar ve Çevre"
-                ]
+                "Matematik": ["Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"],
+                "Fizik": ["Vektörler", "Kuvvet ve Tork", "Atışlar", "İtme-Momentum", "Elektrik ve Manyetizma", "Modern Fizik"],
+                "Kimya": ["Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler", "Kimyasal Denge", "Organik Kimya"],
+                "Biyoloji": ["İnsan Fizyolojisi", "Komünite ve Popülasyon Ekolojisi", "Genco-Protein Sentezi", "Bitki Biyolojisi"]
             }
         };
 
-        // PDF'deki BÜTÜN HOCALAR VE KAYNAK KİTAPLAR
-        const TumHocalar = [
-            "Eyüp B.", "Betül Biyoloji", "Dr. Biyoloji", "Özcan Aykın", "Ferrum", "Kenan Kara", 
-            "Aker Kartal", "Mert Hoca", "Bıyıklı Matematik", "Rüştü Hoca", "Rehber Matematik", 
-            "Şenol Hoca", "İlyas Güneş", "Bayram Meral", "Kadir Gümüş", "Umut Öncül", "Ertan Sinan Şahin", 
-            "Görkem Şahin", "Celal Hoca", "Deniz Hoca"
-        ];
+        const TumHocalar = ["Mert Hoca", "Eyüp B.", "Betül Biyoloji", "Dr. Biyoloji", "Özcan Aykın", "Kadir Gümüş", "Bıyıklı Matematik", "Rehber Matematik"];
+        const TumKaynaklar = ["3D Yayınları", "345 Yayınları", "Bilgi Sarmal", "Orijinal", "Biyotik", "Aydın Kimya", "Limit Yayınları"];
 
-        const TumKaynaklar = [
-            "3D Yayınları", "345 Yayınları", "Bilgi Sarmal", "Orijinal Matematik/Geometri", 
-            "Biyotik Biyoloji", "Aydın Kimya", "Orbital Kimya", "Palme Biyoloji", 
-            "Hız ve Renk", "Limit Yayınları", "Paraf Mor Seri", "Nihat Bilgin Fizik", 
-            "Barış Yayınları", "Antrenmanlarla Matematik"
-        ];
-
-        // Görev Verileri
+        // Program Verisi
         let programTasks = [
             {
                 id: 1,
@@ -454,32 +347,23 @@
                 ders: "Matematik",
                 konu: "Problemler",
                 hoca: "Mert Hoca",
-                kaynak: "3D TYT Matematik",
+                kaynak: "3D Yayınları",
                 sure: "45 Dk",
-                miktar: 3,
+                miktar: 4,
                 gunler: {
-                    "Pazartesi": { tamamlanan: 0 },
+                    "Pazartesi": { tamamlanan: 2 },
                     "Çarşamba": { tamamlanan: 0 }
-                }
-            },
-            {
-                id: 2,
-                sinav: "TYT",
-                ders: "Biyoloji",
-                konu: "Hücre",
-                hoca: "Betül Biyoloji",
-                kaynak: "Biyotik TYT Biyoloji",
-                sure: "30 Dk",
-                miktar: 3,
-                gunler: {
-                    "Pazartesi": { tamamlanan: 0 }
                 }
             }
         ];
 
         let activeTaskId = null;
         let activeSelectedDay = "Pazartesi";
-        let workedMinutesTotal = 0;
+
+        // Sidebar Daraltma
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+        }
 
         function switchView(viewId, element) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
@@ -491,15 +375,9 @@
         function populateFormDropdowns() {
             const sinav = document.getElementById('form-sinav').value;
             const dersSelect = document.getElementById('form-ders');
-            const currentDers = dersSelect.value;
-            
-            // Dersleri Doldur
             dersSelect.innerHTML = "";
             const dersListesi = Object.keys(TumKonular[sinav] || {});
             dersListesi.forEach(d => dersSelect.innerHTML += `<option value="${d}">${d}</option>`);
-
-            if(dersListesi.includes(currentDers)) dersSelect.value = currentDers;
-
             onSinavOrDersChange();
         }
 
@@ -507,7 +385,6 @@
             const sinav = document.getElementById('form-sinav').value;
             const ders = document.getElementById('form-ders').value;
             const konuSelect = document.getElementById('form-konu');
-
             konuSelect.innerHTML = "";
             const konular = (TumKonular[sinav] && TumKonular[sinav][ders]) ? TumKonular[sinav][ders] : ["Genel Konu"];
             konular.forEach(k => konuSelect.innerHTML += `<option value="${k}">${k}</option>`);
@@ -516,21 +393,11 @@
         function populateHocaAndKaynakOptions() {
             const hocaSelect = document.getElementById('form-hoca');
             const kaynakSelect = document.getElementById('form-kaynak');
-            
-            hocaSelect.innerHTML = "";
-            TumHocalar.forEach(h => hocaSelect.innerHTML += `<option value="${h}">${h}</option>`);
-
-            kaynakSelect.innerHTML = "";
-            TumKaynaklar.forEach(k => kaynakSelect.innerHTML += `<option value="${k}">${k}</option>`);
-
-            // Bilgi Sekmesindeki Listeleri Doldur
-            const hocaDiv = document.getElementById('konu-hoca-listesi');
-            hocaDiv.innerHTML = TumHocalar.map(h => `<div>• ${h}</div>`).join('');
-
-            const kaynakDiv = document.getElementById('konu-kaynak-listesi');
-            kaynakDiv.innerHTML = TumKaynaklar.map(k => `<div>• ${k}</div>`).join('');
+            hocaSelect.innerHTML = TumHocalar.map(h => `<option value="${h}">${h}</option>`).join('');
+            kaynakSelect.innerHTML = TumKaynaklar.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
+        // Akıllı Renk ve Tik Hesaplama Mantığı
         function renderSchedule() {
             const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
             const container = document.getElementById('weekly-schedule');
@@ -541,18 +408,38 @@
                 
                 programTasks.forEach(task => {
                     if(task.gunler[day] !== undefined) {
-                        let dayCompleted = task.gunler[day].tamamlanan;
-                        let isDone = dayCompleted >= task.miktar;
+                        let completed = task.gunler[day].tamamlanan;
+                        let target = task.miktar;
                         
+                        // Durum Tespiti
+                        let stateClass = "";
+                        let statusText = "";
+
+                        if(completed >= target) {
+                            stateClass = "state-full";
+                            statusText = "✓ Tamamlandı";
+                        } else if(completed > 0) {
+                            stateClass = "state-partial";
+                            statusText = `İlerleme: ${completed}/${target}`;
+                        } else {
+                            statusText = `Hedef: ${target} Test`;
+                        }
+
+                        // Bütün Günler Tamamlandı mı Kontrol Et
+                        let isAllDaysCompleted = true;
+                        for(let d in task.gunler) {
+                            if(task.gunler[d].tamamlanan < task.miktar) {
+                                isAllDaysCompleted = false;
+                                break;
+                            }
+                        }
+
                         dayHtml += `
-                            <div class="task-card ${isDone ? 'completed' : ''}" onclick="openTaskDetail(${task.id}, '${day}')">
-                                <div style="font-weight:700; font-size:0.83rem; color:#1e293b;">${task.ders} (${task.hoca})</div>
-                                <div style="color:var(--text-muted); font-size:0.75rem; margin-top:2px;">• Konu: ${task.konu}</div>
-                                <div style="color:var(--text-muted); font-size:0.75rem;">• Kaynak: ${task.kaynak}</div>
-                                <div style="margin-top:6px; font-weight:600; color:var(--primary-color);">• Hedef: ${task.miktar} Test / ${task.sure}</div>
-                                <div style="margin-top:4px; font-size:0.72rem; font-weight:bold; color:${isDone ? 'var(--success-color)' : '#64748b'};">
-                                    ${isDone ? '✓ Tamamlandı' : 'İlerleme: ' + dayCompleted + '/' + task.miktar}
-                                </div>
+                            <div class="task-card ${stateClass}" onclick="openTaskDetail(${task.id}, '${day}')">
+                                <div style="font-weight:700; font-size:0.82rem;">${task.ders}</div>
+                                <div class="task-subtext" style="color:var(--text-muted); font-size:0.72rem; margin-top:2px;">${task.konu} • ${task.hoca}</div>
+                                <div class="task-tag" style="color:var(--primary-color); font-weight:600; font-size:0.72rem; margin-top:4px;">${statusText}</div>
+                                ${isAllDaysCompleted ? `<div class="all-completed-badge"><i class="fa-solid fa-circle-check"></i> Haftalık Hedef Bitti</div>` : ''}
                             </div>
                         `;
                     }
@@ -563,7 +450,7 @@
             });
         }
 
-        // Form Gönderme (Çoklu Gün Seçimi Entegreli)
+        // Form Ekleme
         document.getElementById('program-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const sinav = document.getElementById('form-sinav').value;
@@ -574,7 +461,6 @@
             const miktar = parseFloat(document.getElementById('form-miktar').value) || 3;
             const sure = document.getElementById('form-sure').value || "45 Dk";
 
-            // Seçilen Günleri Topla
             const selectedDays = {};
             document.querySelectorAll('#form-days-checkboxes input[type="checkbox"]:checked').forEach(cb => {
                 selectedDays[cb.value] = { tamamlanan: 0 };
@@ -587,21 +473,14 @@
 
             programTasks.push({
                 id: Date.now(),
-                sinav: sinav,
-                ders: ders,
-                konu: konu,
-                hoca: hoca,
-                kaynak: kaynak,
-                sure: sure,
-                miktar: miktar,
+                sinav, ders, konu, hoca, kaynak, sure, miktar,
                 gunler: selectedDays
             });
 
             renderSchedule();
-            alert("Görev seçilen günlere başarıyla eklendi!");
         });
 
-        /* Modal Yönetimi & Gün Aktarma/Ekleme Mantığı */
+        // Modal Yönetimi
         function openTaskDetail(id, dayName) {
             activeTaskId = id;
             activeSelectedDay = dayName;
@@ -609,18 +488,10 @@
             if(!task) return;
 
             document.getElementById('modal-task-title').innerText = `${task.ders} - ${task.konu}`;
-            document.getElementById('modal-badge-hoca').innerText = task.hoca;
-            document.getElementById('modal-badge-ders').innerText = `${task.sinav} - ${task.ders}`;
-            document.getElementById('modal-kaynak-adi').innerText = task.kaynak;
-            document.getElementById('modal-toplam-sure').innerText = task.sure;
-            document.getElementById('modal-toplam-miktar').innerText = `${task.miktar} Test`;
+            document.getElementById('modal-task-sub').innerText = `${task.hoca} • ${task.kaynak} • ${task.sure}`;
+            document.getElementById('modal-badge-ders').innerText = `${task.sinav} ${task.ders}`;
 
-            document.getElementById('modal-remove-day-text').innerText = `${dayName} gününden kaldır`;
-
-            // Gün Chip'lerini Çizdir
             renderModalDayChips(task);
-
-            // Seçili Gün İlerlemesini Yükle
             selectModalDay(activeSelectedDay);
 
             document.getElementById('task-detail-modal').style.display = 'flex';
@@ -632,21 +503,18 @@
 
             for(let d in task.gunler) {
                 const dayShort = d.substring(0, 3);
-                const comp = task.gunler[d].tamamlanan;
                 const activeClass = (d === activeSelectedDay) ? 'active' : '';
                 container.innerHTML += `
                     <div class="modal-day-chip ${activeClass}" onclick="selectModalDay('${d}')">
-                        <div class="day-code">${dayShort}</div>
-                        <div class="day-val">${comp} / ${task.miktar}</div>
+                        <div style="font-weight:bold; font-size:0.8rem;">${dayShort}</div>
+                        <div style="font-size:0.68rem; color:var(--text-muted);">${task.gunler[d].tamamlanan}/${task.miktar}</div>
                     </div>
                 `;
             }
 
-            // "Başka Güne Ekle / Aktar" Butonu
             container.innerHTML += `
                 <div class="modal-add-day-btn" onclick="addNewDayToTask()">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Gün Ekle / Aktar</span>
+                    <i class="fa-solid fa-plus"></i> Gün Ekle
                 </div>
             `;
         }
@@ -656,9 +524,7 @@
             const task = programTasks.find(t => t.id === activeTaskId);
             if(!task) return;
 
-            document.getElementById('modal-remove-day-text').innerText = `${dayName} gününden kaldır`;
             document.getElementById('modal-day-progress-title').innerText = `${dayName} Günü Tamamlanan Miktar`;
-
             const currentCompleted = task.gunler[dayName] ? task.gunler[dayName].tamamlanan : 0;
 
             const slider = document.getElementById('modal-slider');
@@ -666,14 +532,6 @@
             slider.value = currentCompleted;
             onSliderInputChange(currentCompleted);
 
-            // Genel İlerleme Oranı
-            let totalComp = 0;
-            let totalDaysCount = Object.keys(task.gunler).length;
-            for(let d in task.gunler) { totalComp += task.gunler[d].tamamlanan; }
-            let totalPerc = Math.round((totalComp / (task.miktar * totalDaysCount)) * 100);
-            document.getElementById('modal-toplam-ilerleme').innerText = `%${isNaN(totalPerc) ? 0 : totalPerc}`;
-
-            // Chip Aktifliğini Güncelle
             renderModalDayChips(task);
         }
 
@@ -695,136 +553,40 @@
             closeTaskDetailModal();
         }
 
-        function resetTaskProgress() {
-            const task = programTasks.find(t => t.id === activeTaskId);
-            if(task && task.gunler[activeSelectedDay]) {
-                task.gunler[activeSelectedDay].tamamlanan = 0;
-                selectModalDay(activeSelectedDay);
-                renderSchedule();
-            }
-        }
-
-        function removeCurrentDay() {
-            const task = programTasks.find(t => t.id === activeTaskId);
-            if(task) {
-                delete task.gunler[activeSelectedDay];
-                const remainingDays = Object.keys(task.gunler);
-                if(remainingDays.length > 0) {
-                    activeSelectedDay = remainingDays[0];
-                    openTaskDetail(activeTaskId, activeSelectedDay);
-                } else {
-                    closeTaskDetailModal();
-                }
-                renderSchedule();
-            }
-        }
-
-        // İstediğin "Gün Ekle / Aktar (Pazartesi -> Salı)" Mantığı
         function addNewDayToTask() {
             const task = programTasks.find(t => t.id === activeTaskId);
             if(!task) return;
             const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
             const availableDays = days.filter(d => task.gunler[d] === undefined);
             
-            if(availableDays.length === 0) {
-                alert("Bu görev zaten haftanın tüm günlerine eklenmiş!");
-                return;
-            }
+            if(availableDays.length === 0) { alert("Tüm günlere ekli!"); return; }
 
-            const targetDay = prompt(`Bu görevi hangi güne kopyalamak/eklemek istiyorsun?\nMevcut Seçenekler: ${availableDays.join(', ')}`, availableDays[0]);
-            
+            const targetDay = prompt(`Hangi güne kopyalayalım?\nSeçenekler: ${availableDays.join(', ')}`, availableDays[0]);
             if(targetDay && days.includes(targetDay)) {
-                if(task.gunler[targetDay] !== undefined) {
-                    alert("Bu görev zaten seçilen günde mevcut!");
-                } else {
-                    task.gunler[targetDay] = { tamamlanan: 0 };
-                    selectModalDay(targetDay);
-                    renderSchedule();
-                }
+                task.gunler[targetDay] = { tamamlanan: 0 };
+                selectModalDay(targetDay);
+                renderSchedule();
             }
         }
 
-        /* Deneme & Net Hesabı */
-        function addDeneme() {
-            const name = document.getElementById('deneme-adi').value || "Genel Deneme";
-            const tur = document.getElementById('deneme-tur').value;
+        // YALNIZCA PROGRAMI YÜKSEK KALİTEDE PDF OLARAK İNDİRME
+        function exportSchedulePDF() {
+            const element = document.getElementById('schedule-to-export');
+            
+            // PDF için özel stil geçici olarak uygulanıyor
+            element.classList.add('pdf-export-mode');
 
-            const calcNet = (dId, yId) => {
-                let d = parseFloat(document.getElementById(dId).value) || 0;
-                let y = parseFloat(document.getElementById(yId).value) || 0;
-                return d - (y / 4);
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     'YKS_Haftalik_Programim.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
 
-            const trNet = calcNet('tr-d', 'tr-y');
-            const sosNet = calcNet('sos-d', 'sos-y');
-            const matNet = calcNet('mat-d', 'mat-y');
-            const fenNet = calcNet('fen-d', 'fen-y');
-
-            const totalNet = trNet + sosNet + matNet + fenNet;
-            const estScore = 100 + (trNet * 3.3) + (sosNet * 3.4) + (matNet * 3.3) + (fenNet * 3.4);
-
-            const cardHtml = `
-                <div class="item-card">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <h4>${name}</h4>
-                        <span class="badge badge-purple">${tur}</span>
-                    </div>
-                    <div style="margin-top:10px; font-size:0.85rem; color:var(--text-muted); display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-                        <div>Türkçe: <strong>${trNet.toFixed(2)} Net</strong></div>
-                        <div>Sosyal: <strong>${sosNet.toFixed(2)} Net</strong></div>
-                        <div>Matematik: <strong>${matNet.toFixed(2)} Net</strong></div>
-                        <div>Fen: <strong>${fenNet.toFixed(2)} Net</strong></div>
-                    </div>
-                    <hr style="border:none; border-top:1px solid var(--border-color); margin:10px 0;">
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:0.9rem;">
-                        <span>Toplam Net: <span style="color:var(--primary-color);">${totalNet.toFixed(2)}</span></span>
-                        <span>Tahmini Puan: <span style="color:var(--success-color);">${estScore.toFixed(1)}</span></span>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('deneme-listesi').innerHTML += cardHtml;
-        }
-
-        /* Sayaç */
-        let timerInterval;
-        let timerSeconds = 1500;
-        function startTimer() {
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if(timerSeconds > 0) {
-                    timerSeconds--;
-                    let m = Math.floor(timerSeconds / 60);
-                    let s = timerSeconds % 60;
-                    document.getElementById('timer-display').innerText = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
-                }
-            }, 1000);
-        }
-        function pauseTimer() { clearInterval(timerInterval); }
-        function resetTimer() { clearInterval(timerInterval); timerSeconds = 1500; document.getElementById('timer-display').innerText = "25:00"; }
-
-        function addManualTime() {
-            const mins = parseFloat(document.getElementById('manual-mins').value) || 0;
-            if(mins > 0) {
-                workedMinutesTotal += mins;
-                document.getElementById('total-worked-time').innerText = `${workedMinutesTotal} dk`;
-                
-                const targetHours = parseFloat(document.getElementById('target-hours').value) || 6;
-                const targetMins = targetHours * 60;
-                const perc = Math.round((workedMinutesTotal / targetMins) * 100);
-                document.getElementById('target-percentage').innerText = `%${perc}`;
-                document.getElementById('manual-mins').value = "";
-            }
-        }
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) { document.documentElement.requestFullscreen(); }
-            else { if (document.exitFullscreen) document.exitFullscreen(); }
-        }
-
-        function downloadPDF() {
-            const element = document.getElementById('printable-content');
-            html2pdf().set({ margin: 0.5, filename: 'YKS_Programim.pdf', html2canvas: { scale: 2 } }).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.classList.remove('pdf-export-mode');
+            });
         }
 
         window.onload = function() {
