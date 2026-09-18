@@ -141,9 +141,22 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 28px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* Range Slider */
+        /* Fotoğraftaki Görev Modal Stilleri */
+        .m-header-pills { display: flex; gap: 8px; margin-bottom: 12px; }
+        .m-pill { background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 0.75rem; }
+        .m-stats-grid { display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; color: #475569; margin-bottom: 15px; }
+        .m-stat-row { display: flex; justify-content: space-between; align-items: center; }
+        .m-action-links { display: flex; gap: 15px; font-size: 0.8rem; color: #ef4444; margin-bottom: 20px; }
+        .m-action-links span { cursor: pointer; font-weight: 600; }
+        .m-action-links span.gray { color: #64748b; }
+
+        .m-days-scroll { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .m-day-box { border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 90px; cursor: pointer; background: #fff; }
+        .m-day-box.active { border-color: var(--primary); background: #f5f3ff; }
+        .m-add-day-btn { border: 1px dashed #6366f1; background: #eef2ff; color: #6366f1; border-radius: 10px; padding: 10px 15px; text-align: center; min-width: 90px; cursor: pointer; font-weight: 700; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
         .slider-container { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
-        .slider-container input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
+        .slider-container input[type="range"] { flex: 1; accent-color: #312e81; cursor: pointer; }
 
         /* Canvas */
         #canvas-container { border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; background: #fff; margin-top: 10px; }
@@ -211,7 +224,7 @@
                     <div class="form-group">
                         <label>Tür</label>
                         <select id="f-tur">
-                            <option value="Soru Bankası">Soru Bankası</option>
+                            <option value="Soru">Soru</option>
                             <option value="Konu Anlatımı">Konu Anlatımı</option>
                             <option value="Deneme">Deneme / Branş</option>
                         </select>
@@ -234,11 +247,11 @@
                     </div>
                     <div class="form-group">
                         <label>Miktar (Test/Video)</label>
-                        <input type="number" id="f-miktar" value="4">
+                        <input type="number" id="f-miktar" value="12">
                     </div>
                     <div class="form-group">
                         <label>Süre (Dk/Adet)</label>
-                        <input type="number" id="f-sure" value="30">
+                        <input type="number" id="f-sure" value="185">
                     </div>
                 </div>
                 
@@ -338,26 +351,78 @@
         </div>
     </div>
 
-    <!-- KAYDIRMALI (SLIDER) GÖREV DETAY MODALI -->
+    <!-- EKRAN GÖRÜNTÜSÜNDEKİ GÖREV DETAY MODALI -->
     <div id="task-modal" class="modal">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 id="m-task-title">Görev İlerlemesi</h3>
-                <i data-lucide="x" style="cursor: pointer;" onclick="closeModal('task-modal')"></i>
+        <div class="modal-content" style="max-width: 550px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div style="background: #f1f5f9; padding: 8px; border-radius: 12px; display: inline-block;">
+                    <i data-lucide="list" style="color: #64748b;"></i>
+                </div>
+                <i data-lucide="x" style="cursor: pointer; color: #64748b;" onclick="closeModal('task-modal')"></i>
             </div>
-            <div id="m-task-details" style="font-size: 0.9rem; margin-bottom: 15px; color: #475569; line-height: 1.5;"></div>
             
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label>Tamamlanan Miktar / Test Sayısı</label>
+            <h2 id="m-task-title" style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;">TYT Sözcükte Yapı - Ekler</h2>
+            
+            <div class="m-header-pills">
+                <span class="m-pill" id="m-pill-tur">Soru</span>
+                <span class="m-pill" id="m-pill-ders" style="background: #f1f5f9; color: #475569;">TYT - Türkçe</span>
+                <span style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-left: auto;" id="m-kaynak-text">Hız ve Renk TYT Türkçe</span>
+            </div>
+
+            <div class="m-stats-grid">
+                <div class="m-stat-row">
+                    <span>⏱ Toplam Süre</span>
+                    <b id="m-toplam-sure">3sa 05dk</b>
+                    <span class="gray" style="cursor: pointer; text-decoration: underline;" onclick="promptEditTime()">⏱ Süre Gir</span>
+                </div>
+                <div class="m-stat-row">
+                    <span>⇄ Toplam Miktar</span>
+                    <b id="m-toplam-miktar">12.0 test</b>
+                </div>
+                <div class="m-stat-row">
+                    <span>% Toplam İlerleme</span>
+                    <b id="m-toplam-ilerleme" style="color: #ea580c; background: #ffedd5; padding: 2px 8px; border-radius: 6px;">%0</b>
+                </div>
+            </div>
+
+            <div class="m-action-links">
+                <span class="gray" onclick="resetProgress()">↺ İlerlemeyi sıfırla</span>
+                <span style="color: #ef4444;" id="m-remove-day-btn" onclick="removeCurrentDayFromTask()">X <span id="m-active-day-name">Pazartesi</span> gününden kaldır</span>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 15px;">
+
+            <!-- Gün Ekip / Seçim Kaydırma Alanı -->
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                <div class="m-days-scroll" id="m-days-container" style="margin-bottom: 0; flex: 1;">
+                    <!-- Dinamik Gün Kutucukları Gelir -->
+                </div>
+                <div class="m-add-day-btn" onclick="addNewDayToTask()">
+                    <span style="font-size: 1.2rem;">+</span>
+                    <span>Gün ekle</span>
+                </div>
+            </div>
+
+            <!-- Seçili Güne Özel İlerleme Alanı -->
+            <div style="background: #fafafa; border: 1px solid #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 12px;" id="m-day-title">Pazartesi günü ödev ilerlemesi</h4>
+                
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; color: #475569; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between;"><span>⏱ Bu güne düşen süre</span><b id="m-day-sure">3sa 05dk</b></div>
+                    <div style="display: flex; justify-content: space-between;"><span>⇄ Bu güne düşen miktar</span><b id="m-day-miktar">12 test</b></div>
+                    <div style="display: flex; justify-content: space-between;"><span>✓ Bu gün tamamlanan miktar</span><b id="m-day-completed">0 test</b></div>
+                </div>
+
+                <label style="font-size: 0.78rem; font-weight: 600; color: #64748b;" id="m-slider-label">Pazartesi günü tamamlanan miktara ekle</label>
                 <div class="slider-container">
                     <input type="range" id="m-slider" min="0" value="0" oninput="updateSliderVal(this.value)">
-                    <span id="slider-val-text" style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">0</span>
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 10px; min-width: 60px; text-align: center; font-weight: 700; background: #fff;" id="m-slider-box">0 test</div>
                 </div>
-                <div id="slider-percent-text" style="font-weight: 700; font-size: 0.9rem; color: #16a34a; margin-top: 5px; text-align: right;">%0 Tamamlandı</div>
             </div>
-            <div style="display: flex; justify-content: space-between;">
-                <button class="btn btn-secondary" onclick="removeTaskFromCurrentDay()">Görevi Sil</button>
-                <button class="btn btn-primary" onclick="saveTaskProgress()">Kaydet</button>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn btn-secondary" style="flex: 1; justify-content: center;" onclick="closeModal('task-modal')">Kapat</button>
+                <button class="btn btn-primary" style="flex: 1; justify-content: center; background: #312e81;" onclick="saveTaskProgress()">Ekle / Kaydet</button>
             </div>
         </div>
     </div>
@@ -418,42 +483,52 @@
     </div>
 
     <script>
-        /* PDF VERİLERİ (DERS BAZLI AYRILMIŞ HOCA VE KAYNAKLAR) */
+        /* PDF VERİLERİ (BÜTÜN DERSLER, HOCALAR, KAYNAKLAR VE KONULAR EKSİKSİZ) */
         const pdfData = {
             "Türkçe": {
-                hocalar: ["Rüştü Hoca", "Aker Kartal", "Kadir Gümüş", "Eyüp Hoca", "Deniz Hoca"],
-                kaynaklar: ["Hız ve Renk Yayınları Paragraf", "Okyanus Master Paragraf", "345 TYT Paragraf", "Bilgi Sarmal Paragraf", "Toprak Yayınları Paragraf", "Karekök Rutin Olmayan Paragraf", "Limit Kronometre Paragraf", "Apotemi Paragraf", "Karakutu Dil Bilgisi", "Aydın Yayınları Dil Bilgisi", "345 TYT Türkçe", "Orijinal TYT Türkçe", "Palme TYT Türkçe"],
-                konular: ["Sözcükte Anlam", "Söz Yorumu", "Cümlede Anlam", "Paragraf", "Paragrafta Anlatım Teknikleri", "Ses Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", "Sözcükte Yapı/Ekler", "Sözcük Türleri", "Cümlenin Ögeleri", "Anlatım Bozukluğu"]
+                hocalar: ["Rüştü Hoca", "Aker Kartal", "Kadir Gümüş", "Eyüp Hoca", "Deniz Hoca", "Önder Hoca"],
+                kaynaklar: ["Hız ve Renk TYT Türkçe Dil Bilgisi", "Hız ve Renk Yayınları Paragraf", "Okyanus Master Paragraf", "345 TYT Paragraf", "Bilgi Sarmal Paragraf", "Toprak Yayınları Paragraf", "Karekök Rutin Olmayan Paragraf", "Limit Kronometre Paragraf", "Apotemi Paragraf", "Karakutu Dil Bilgisi", "Aydın Yayınları Dil Bilgisi", "345 TYT Türkçe", "Orijinal TYT Türkçe", "Palme TYT Türkçe"],
+                konular: ["Sözcükte Anlam", "Söz Yorumu", "Cümlede Anlam", "Paragraf", "Paragrafta Anlatım Teknikleri", "Ses Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", "Sözcükte Yapı - Ekler", "Sözcük Türleri", "Cümlenin Ögeleri", "Anlatım Bozukluğu"]
             },
             "Matematik": {
-                hocalar: ["Mert Hoca", "Eyüp B", "Rehber Matematik", "Mathman", "Bıyıklı Matematik", "Anıl Hoca", "Matematiğin Güler Yüzü", "Tunç Kurt"],
+                hocalar: ["Mert Hoca", "Eyüp B", "Rehber Matematik", "Mathman", "Bıyıklı Matematik", "Anıl Hoca", "Matematiğin Güler Yüzü", "Tunç Kurt", "Şenol Hoca"],
                 kaynaklar: ["Karekök TYT Matematik Sıfır", "Mert Hoca TYT Matematik Kampı", "345 TYT Matematik", "Bilgi Sarmal TYT Matematik", "3D TYT Matematik", "Orijinal TYT Matematik", "Apotemi TYT Matematik", "Antrenmanlarla Matematik Problemler", "Çap Problemler", "3D Problemler", "Apotemi Problemler", "345 AYT Matematik", "Bilgi Sarmal AYT Matematik", "3D AYT Matematik", "Orijinal AYT Matematik", "Apotemi Türev-İntegral-Trigonometri", "Barış Çelenk AYT Matematik"],
-                konular: ["Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Problemler", "Kümeler", "Mantık", "Fonksiyonlar", "Polinomlar", "2. Dereceden Denklemler", "Permütasyon-Kombinasyon-Olasılık", "Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"]
+                konular: ["Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Problemler", "Kümeler", "Mantık", "Fonksiyonlar", "Polinomlar", "2. Dereceden Denklemler", "Karmaşık Sayılar", "Permütasyon-Kombinasyon-Olasılık", "Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"]
             },
             "Geometri": {
-                hocalar: ["Kenan Kara", "Merkeze Teğet", "Şükrü Akkoyun", "Eyüp B", "Mert Hoca"],
+                hocalar: ["Kenan Kara", "Merkeze Teğet", "Şükrü Akkoyun", "Eyüp B", "Mert Hoca", "Nurtaç Hoca"],
                 kaynaklar: ["Karekök Geometri Sıfır", "Birey A Kolay Geometri", "Kenan Kara Geometri", "345 Geometri", "Bilgi Sarmal Geometri", "3D Geometri", "Orijinal Geometri", "Acil Geometri", "Apotemi Geometri"],
-                konular: ["Doğruda Açılar", "Üçgende Açılar", "Özel Üçgenler", "Açıortay-Kenarortay", "Üçgende Alan", "Eşlik ve Benzerlik", "Çokgenler", "Dörtgenler", "Paralelkenar", "Dikdörtgen-Kare", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler"]
+                konular: ["Doğruda Açılar", "Üçgende Açılar", "Özel Üçgenler", "Açıortay-Kenarortay", "Üçgende Alan", "Eşlik ve Benzerlik", "Çokgenler", "Dörtgenler", "Paralelkenar", "Dikdörtgen-Kare", "Deltoid", "Yamuk", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler", "Çemberin Analitiği"]
             },
             "Fizik": {
-                hocalar: ["Vip Fizik", "Özcan Aykın", "Altuğ Güneş", "Fizikle Barış", "Ertan Sinan Şahin", "Fizik Evim"],
+                hocalar: ["Vip Fizik", "Özcan Aykın", "Altuğ Güneş", "Fizikle Barış", "Ertan Sinan Şahin", "Fizik Evim", "Umut Öncül"],
                 kaynaklar: ["Aktif AYT Fizik", "Palme AYT Fizik", "Esen Üçrenk", "345 AYT Fizik", "Bilgi Sarmal AYT Fizik", "Ertan Sinan Şahin Seti", "3D AYT Fizik", "Aydın AYT Fizik", "Nihat Bilgin AYT Fizik", "Apotemi AYT Fizik"],
-                konular: ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Basınç ve Kaldırma Kuvveti", "Isı Sıcaklık Genleşme", "Hareket ve Kuvvet", "İş Güç Enerji", "Elektrik ve Manyetizma", "Optik", "Dalgalar", "Vektörler", "Tork ve Denge", "Çembersel Hareket", "Basit Harmonik Hareket", "Modern Fizik"]
+                konular: ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Basınç ve Kaldırma Kuvveti", "Isı Sıcaklık Genleşme", "Hareket ve Kuvvet", "İş Güç Enerji", "Elektrik ve Manyetizma", "Optik", "Dalgalar", "Vektörler", "Bağıl Hareket", "Newton'un Hareket Yasaları", "Atışlar", "Tork ve Denge", "Basit Makineler", "Çembersel Hareket", "Basit Harmonik Hareket", "Dalga Mekaniği", "Modern Fizik"]
             },
             "Kimya": {
-                hocalar: ["Kimya Adası", "Görkem Şahin", "Ferrum", "Semih Balmuk", "Kimya Özel", "Sinan İhtiyaroğlu"],
+                hocalar: ["Kimya Adası", "Görkem Şahin", "Ferrum", "Semih Balmuk", "Kimya Özel", "Sinan İhtiyaroğlu", "Mesut Serim"],
                 kaynaklar: ["Kimya Adası AYT Kimya", "Benim Hocam AYT Kimya", "Hız ve Renk AYT Kimya", "345 AYT Kimya", "Bilgi Sarmal AYT Kimya", "Palme AYT Kimya", "Aydın AYT Kimya", "3D AYT Kimya", "Orbital AYT Kimya", "Apotemi Organik Kimya"],
-                konular: ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", "Maddenin Halleri", "Kimyanın Temel Kanunları", "Karışımlar", "Asit Baz Tuz", "Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler", "Kimyasal Tepkimelerde Denge", "Kimya ve Elektrik", "Organik Kimya"]
+                konular: ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", "Maddenin Halleri", "Kimyanın Temel Kanunları", "Karışımlar", "Asit Baz Tuz", "Kimya Her Yerde", "Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler", "Tepkimelerde Enerji", "Tepkimelerde Hız", "Kimyasal Tepkimelerde Denge", "Kimya ve Elektrik", "Organik Kimya"]
             },
             "Biyoloji": {
-                hocalar: ["Dr Biyoloji", "Selin Hoca", "Biosem", "Betül Biyoloji", "Fundamentals"],
+                hocalar: ["Dr Biyoloji", "Selin Hoca", "Biosem", "Betül Biyoloji", "Fundamentals", "Senin Biyolojin"],
                 kaynaklar: ["Selin Hoca AYT Biyoloji", "Hız ve Renk AYT Biyoloji", "Biyotik AYT Biyoloji", "345 AYT Biyoloji", "Bilgi Sarmal AYT Biyoloji", "Palme AYT Biyoloji", "3D AYT Biyoloji", "Aydın AYT Biyoloji", "Apotemi Sistemler", "Biyoanaliz", "Çap Bitki"],
-                konular: ["Canlıların Ortak Özellikleri", "Hücre ve Organelleri", "Canlıların Sınıflandırılması", "Mitoz ve Mayoz", "Kalıtım", "Ekosistem Ekolojisi", "İnsan Fizyolojisi / Sistemler", "Genden Proteine", "Canlılarda Enerji Dönüşümleri", "Bitki Biyolojisi"]
+                konular: ["Canlıların Ortak Özellikleri", "Hücre ve Organelleri", "Canlıların Sınıflandırılması", "Mitoz ve Mayoz", "Kalıtım", "Ekosistem Ekolojisi", "İnsan Fizyolojisi / Sistemler", "Genden Proteine", "Canlılarda Enerji Dönüşümleri", "Bitki Biyolojisi", "Popülasyon ve Komünite Ekolojisi"]
             },
-            "Sosyal": {
-                hocalar: ["Coğrafyanın Kodları", "Felsefe Atölyesi"],
-                kaynaklar: ["345 Sosyal Bilimler", "Bilgi Sarmal Sosyal", "Hız ve Renk Sosyal"],
-                konular: ["Tarih ve Zaman", "Milli Mücadele", "Atatürkçülük", "Coğrafi Konum", "İklimler", "Harita Bilgisi", "Bilgi Felsefesi", "Ahlak Felsefesi", "Din ve İbadet"]
+            "Tarih": {
+                hocalar: ["Ramazan Yetgin", "Sadettin Hoca", "Soner Ardıç", "Benim Hocam Tarih"],
+                kaynaklar: ["345 Tarih", "Bilgi Sarmal Tarih", "Hız ve Renk Tarih", "Palme Tarih"],
+                konular: ["Tarih ve Zaman", "İlk Çağ Uygarlıkları", "İslam Öncesi Türk Tarihi", "İslam Tarihi", "İlk Türk İslam Devletleri", "Osmanlı Tarihi", "Milli Mücadele", "Atatürkçülük ve İnkılaplar"]
+            },
+            "Coğrafya": {
+                hocalar: ["Coğrafyanın Kodları", "Engin Eraydın", "Yunusemre Hoca"],
+                kaynaklar: ["345 Coğrafya", "Bilgi Sarmal Coğrafya", "Limit Coğrafya"],
+                konular: ["Coğrafi Konum", "Harita Bilgisi", "İklim Bilgisi", "Dünyanın Şekli ve Hareketleri", "Türkiye'nin Yer Şekilleri", "Nüfus ve Yerleşme", "Ekonomik Faaliyetler", "Afetler"]
+            },
+            "Felsefe & Din": {
+                hocalar: ["Felsefe Atölyesi", "Karakuş Hoca"],
+                kaynaklar: ["345 Sosyal Bilimler", "Bilgi Sarmal Sosyal"],
+                konular: ["Felsefeyi Tanıma", "Bilgi Felsefesi", "Varlık Felsefesi", "Ahlak Felsefesi", "Siyaset Felsefesi", "Din Felsefesi", "Sanat Felsefesi", "Inanç ve İbadet", "Hz. Muhammed ve Gençlik"]
             }
         };
 
@@ -461,9 +536,9 @@
             "Türkçe": "#ec4899",
             "Tarih": "#eab308",
             "Coğrafya": "#84cc16",
-            "Din": "#14b8a6",
-            "Felsefe": "#a855f7",
+            "Felsefe & Din": "#a855f7",
             "Matematik": "#6366f1",
+            "Geometri": "#8b5cf6",
             "Fizik": "#3b82f6",
             "Kimya": "#06b6d4",
             "Biyoloji": "#10b981"
@@ -473,6 +548,7 @@
         let exams = [];
         let missingTopics = [];
         let selectedTaskIndex = null;
+        let selectedDayForModal = "Pazartesi";
         let lineChartInstance = null;
         let barChartInstance = null;
 
@@ -528,6 +604,10 @@
             const selectedDays = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => b.getAttribute('data-day'));
             if (selectedDays.length === 0) { alert('Lütfen en az bir gün seçin!'); return; }
 
+            const toplamMiktar = parseInt(document.getElementById('f-miktar').value) || 1;
+            const dayProgressMap = {};
+            selectedDays.forEach(d => { dayProgressMap[d] = 0; });
+
             const task = {
                 id: Date.now(),
                 alan: document.getElementById('f-alan').value,
@@ -536,10 +616,10 @@
                 konu: document.getElementById('f-konu').value,
                 hoca: document.getElementById('f-hoca').value,
                 kaynak: document.getElementById('f-kaynak').value,
-                miktar: parseInt(document.getElementById('f-miktar').value) || 1,
+                miktar: toplamMiktar,
                 sure: parseInt(document.getElementById('f-sure').value) || 30,
                 days: selectedDays,
-                progress: 0
+                dayProgress: dayProgressMap
             };
 
             tasks.push(task);
@@ -555,19 +635,24 @@
 
                 tasks.forEach(task => {
                     if (task.days.includes(dayName)) {
-                        dayMinutes += task.sure;
-                        const isCompleted = task.progress >= task.miktar;
-                        const percent = Math.min(100, Math.round((task.progress / task.miktar) * 100));
+                        const dayCount = task.days.length;
+                        const gunEşitMiktar = (task.miktar / dayCount).toFixed(1);
+                        const gunSüre = Math.round(task.sure / dayCount);
+                        dayMinutes += gunSüre;
+
+                        const curDone = task.dayProgress[dayName] || 0;
+                        const isCompleted = curDone >= gunEşitMiktar;
+                        const percent = Math.min(100, Math.round((curDone / gunEşitMiktar) * 100));
 
                         const card = document.createElement('div');
                         card.className = `task-card ${isCompleted ? 'completed' : ''}`;
                         card.style.borderLeftColor = dersRenkleri[task.ders] || '#6366f1';
-                        card.onclick = () => openTaskModal(task.id);
+                        card.onclick = () => openTaskModal(task.id, dayName);
                         card.innerHTML = `
                             <i data-lucide="check-circle" class="checkmark-icon"></i>
                             <div class="task-title">${task.alan} ${task.konu}</div>
                             <div class="task-sub">${task.kaynak} • ${task.hoca}</div>
-                            <div class="task-badge">${task.tur} (${task.progress}/${task.miktar})</div>
+                            <div class="task-badge">${task.tur} (${curDone}/${gunEşitMiktar} test)</div>
                             <div style="margin-top: 6px; font-weight: 700; font-size:0.72rem; color:${isCompleted ? '#166534' : '#4f46e5'}">%${percent} Tamamlandı</div>
                         `;
                         col.appendChild(card);
@@ -581,54 +666,147 @@
             lucide.createIcons();
         }
 
-        /* KAYDIRMALI SLIDER MODALI */
-        function openTaskModal(taskId) {
+        /* EKRAN GÖRÜNTÜSÜNDEKİ MODAL VE SLIDER İŞLEMLERİ */
+        function openTaskModal(taskId, activeDay) {
             selectedTaskIndex = tasks.findIndex(t => t.id === taskId);
             const task = tasks[selectedTaskIndex];
+            selectedDayForModal = activeDay || task.days[0];
 
-            document.getElementById('m-task-title').innerText = `${task.alan} ${task.ders} - ${task.konu}`;
-            document.getElementById('m-task-details').innerHTML = `
-                <b>Hoca:</b> ${task.hoca} <br>
-                <b>Kaynak:</b> ${task.kaynak} <br>
-                <b>Toplam Hedef Miktar:</b> ${task.miktar} Test/Video <br>
-                <b>Günler:</b> ${task.days.join(', ')}
-            `;
-            
-            const slider = document.getElementById('m-slider');
-            slider.max = task.miktar;
-            slider.value = task.progress;
-            updateSliderVal(task.progress);
+            document.getElementById('m-task-title').innerText = `${task.alan} ${task.konu}`;
+            document.getElementById('m-pill-tur').innerText = task.tur;
+            document.getElementById('m-pill-ders').innerText = `${task.alan} - ${task.ders}`;
+            document.getElementById('m-kaynak-text').innerText = task.kaynak;
 
+            // Toplam Süre Hesabı
+            const hrs = Math.floor(task.sure / 60);
+            const mns = task.sure % 60;
+            document.getElementById('m-toplam-sure').innerText = `${hrs > 0 ? hrs + 'sa ' : ''}${mns}dk`;
+            document.getElementById('m-toplam-miktar').innerText = `${task.miktar}.0 test`;
+
+            updateModalDayView();
             document.getElementById('task-modal').style.display = 'flex';
         }
 
+        function updateModalDayView() {
+            const task = tasks[selectedTaskIndex];
+            const dayCount = task.days.length;
+
+            // Toplam Tamamlanan & % Hesaplama
+            let sumDone = 0;
+            task.days.forEach(d => { sumDone += (task.dayProgress[d] || 0); });
+            const totalPercent = Math.min(100, Math.round((sumDone / task.miktar) * 100));
+            document.getElementById('m-toplam-ilerleme').innerText = `%${totalPercent}`;
+
+            // Gün Kutusunu Render Et
+            const daysContainer = document.getElementById('m-days-container');
+            daysContainer.innerHTML = task.days.map(d => {
+                const perDayM = (task.miktar / dayCount).toFixed(1);
+                const dDone = task.dayProgress[d] || 0;
+                return `
+                    <div class="m-day-box ${d === selectedDayForModal ? 'active' : ''}" onclick="selectModalDay('${d}')">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: #1e293b;">${d.substring(0, 3)}</div>
+                        <div style="font-size: 0.72rem; color: #64748b; margin-top:2px;">${dDone} / ${perDayM}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Aktif Gün Detayları
+            document.getElementById('m-active-day-name').innerText = selectedDayForModal;
+            document.getElementById('m-day-title').innerText = `${selectedDayForModal} günü ödev ilerlemesi`;
+
+            const perDayM = parseFloat((task.miktar / dayCount).toFixed(1));
+            const perDayTime = Math.round(task.sure / dayCount);
+            const dHrs = Math.floor(perDayTime / 60);
+            const dMns = perDayTime % 60;
+
+            document.getElementById('m-day-sure').innerText = `${dHrs > 0 ? dHrs + 'sa ' : ''}${dMns}dk`;
+            document.getElementById('m-day-miktar').innerText = `${perDayM} test`;
+
+            const currentDayDone = task.dayProgress[selectedDayForModal] || 0;
+            document.getElementById('m-day-completed').innerText = `${currentDayDone} test`;
+
+            // Slider Güncelleme
+            const slider = document.getElementById('m-slider');
+            slider.max = perDayM;
+            slider.step = 1;
+            slider.value = currentDayDone;
+            document.getElementById('m-slider-box').innerText = `${currentDayDone} test`;
+            document.getElementById('m-slider-label').innerText = `${selectedDayForModal} günü tamamlanan miktara ekle`;
+        }
+
+        function selectModalDay(day) {
+            selectedDayForModal = day;
+            updateModalDayView();
+        }
+
         function updateSliderVal(val) {
-            document.getElementById('slider-val-text').innerText = val;
-            if (selectedTaskIndex !== null) {
-                const max = tasks[selectedTaskIndex].miktar;
-                const percent = Math.min(100, Math.round((val / max) * 100));
-                document.getElementById('slider-percent-text').innerText = `%${percent} Tamamlandı`;
-            }
+            document.getElementById('m-slider-box').innerText = `${val} test`;
         }
 
         function saveTaskProgress() {
             if (selectedTaskIndex !== null) {
-                tasks[selectedTaskIndex].progress = parseInt(document.getElementById('m-slider').value);
+                const val = parseFloat(document.getElementById('m-slider').value) || 0;
+                tasks[selectedTaskIndex].dayProgress[selectedDayForModal] = val;
                 renderProgram();
+                updateModalDayView();
                 closeModal('task-modal');
             }
         }
 
-        function removeTaskFromCurrentDay() {
+        function resetProgress() {
             if (selectedTaskIndex !== null) {
-                tasks.splice(selectedTaskIndex, 1);
+                tasks[selectedTaskIndex].days.forEach(d => {
+                    tasks[selectedTaskIndex].dayProgress[d] = 0;
+                });
                 renderProgram();
-                closeModal('task-modal');
+                updateModalDayView();
+            }
+        }
+
+        function removeCurrentDayFromTask() {
+            if (selectedTaskIndex !== null) {
+                const task = tasks[selectedTaskIndex];
+                if (task.days.length <= 1) {
+                    tasks.splice(selectedTaskIndex, 1);
+                    closeModal('task-modal');
+                } else {
+                    task.days = task.days.filter(d => d !== selectedDayForModal);
+                    delete task.dayProgress[selectedDayForModal];
+                    selectedDayForModal = task.days[0];
+                    updateModalDayView();
+                }
+                renderProgram();
+            }
+        }
+
+        function addNewDayToTask() {
+            if (selectedTaskIndex !== null) {
+                const task = tasks[selectedTaskIndex];
+                const allDays = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+                const available = allDays.filter(d => !task.days.includes(d));
+                if (available.length > 0) {
+                    task.days.push(available[0]);
+                    task.dayProgress[available[0]] = 0;
+                    selectedDayForModal = available[0];
+                    renderProgram();
+                    updateModalDayView();
+                } else {
+                    alert('Bu ödev zaten haftanın tüm günlerine eklendi!');
+                }
+            }
+        }
+
+        function promptEditTime() {
+            const newTime = prompt("Yeni toplam süreyi dakika cinsinden girin:", tasks[selectedTaskIndex].sure);
+            if (newTime && !isNaN(newTime)) {
+                tasks[selectedTaskIndex].sure = parseInt(newTime);
+                renderProgram();
+                updateModalDayView();
             }
         }
 
         /* DENEME GRAFİKLERİ VE TABLOSU */
-        const derslerList = ["Türkçe", "Tarih", "Coğrafya", "Din", "Felsefe", "Matematik", "Fizik", "Kimya", "Biyoloji"];
+        const derslerList = ["Türkçe", "Tarih", "Coğrafya", "Felsefe & Din", "Matematik", "Geometri", "Fizik", "Kimya", "Biyoloji"];
         
         function initExamTable() {
             const tbody = document.querySelector('#exam-inputs-table tbody');
@@ -676,7 +854,6 @@
         }
 
         function initCharts() {
-            // Çizgi Grafiği
             const ctxLine = document.getElementById('lineChart').getContext('2d');
             lineChartInstance = new Chart(ctxLine, {
                 type: 'line',
@@ -695,7 +872,6 @@
                 options: { responsive: true, plugins: { legend: { display: true } } }
             });
 
-            // Sütun Grafiği
             const ctxBar = document.getElementById('barChart').getContext('2d');
             barChartInstance = new Chart(ctxBar, {
                 type: 'bar',
@@ -712,12 +888,10 @@
         }
 
         function updateCharts() {
-            // Çizgi Grafiği Güncelle
             lineChartInstance.data.labels = exams.map(e => `${e.title} (${e.date})`);
             lineChartInstance.data.datasets[0].data = exams.map(e => e.totalNet);
             lineChartInstance.update();
 
-            // Sütun Grafiği Ortalamalarını Güncelle
             if (exams.length > 0) {
                 const avgCorrect = derslerList.map(d => (exams.reduce((acc, curr) => acc + (curr.scores[d]?.correct || 0), 0) / exams.length).toFixed(1));
                 const avgWrong = derslerList.map(d => (exams.reduce((acc, curr) => acc + (curr.scores[d]?.wrong || 0), 0) / exams.length).toFixed(1));
