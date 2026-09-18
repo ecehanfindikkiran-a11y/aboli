@@ -3,39 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ders Çalışma & Program Asistanı</title>
+    <title>YKS Ders & Program Asistanı</title>
     <!-- Chart.js, html2canvas ve Lucide İkonlar -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --bg-main: #f4f6f9;
+            --bg-main: #f8fafc;
             --sidebar-bg: #0f172a;
             --sidebar-text: #94a3b8;
-            --primary: #4f46e5;
-            --pastel-green-light: #e6f4ea;
-            --pastel-green-mid: #a8dab5;
-            --pastel-green-dark: #52b788;
-            --pastel-green-border: #2d6a4f;
+            --primary: #6366f1;
+            --pastel-green-light: #dcfce7;
+            --pastel-green-dark: #166534;
             --card-bg: #ffffff;
             --text-dark: #1e293b;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         body { display: flex; height: 100vh; background-color: var(--bg-main); color: var(--text-dark); overflow: hidden; }
 
-        /* Sol Menü (Sidebar) */
+        /* Sol Menü */
         #sidebar {
             width: 250px;
             background-color: var(--sidebar-bg);
             color: white;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.05);
         }
-        #sidebar.collapsed { width: 65px; }
+        #sidebar.collapsed { width: 70px; }
         #sidebar.collapsed .menu-text, #sidebar.collapsed .logo-text { display: none; }
         .sidebar-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1e293b; }
         .sidebar-menu { list-style: none; padding: 15px 0; flex: 1; }
@@ -47,14 +46,15 @@
             cursor: pointer;
             color: var(--sidebar-text);
             transition: 0.2s;
+            font-weight: 500;
         }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #1e293b; color: #fff; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #1e293b; color: #38bdf8; }
 
-        /* Ana İçerik Alanı */
+        /* Ana İçerik */
         #main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
         .top-bar {
             background-color: #fff;
-            padding: 12px 25px;
+            padding: 14px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -63,10 +63,10 @@
         .tab-content { display: none; padding: 25px; }
         .tab-content.active { display: block; }
 
-        /* Butonlar & Formlar */
+        /* Butonlar & UI */
         .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
             font-weight: 600;
@@ -74,51 +74,79 @@
             align-items: center;
             gap: 8px;
             transition: 0.2s;
+            font-size: 0.88rem;
         }
-        .btn-primary { background-color: #f43f5e; color: white; }
-        .btn-primary:hover { background-color: #e11d48; }
-        .btn-secondary { background-color: #e2e8f0; color: var(--text-dark); }
-        
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .form-group { display: flex; flex-direction: column; gap: 4px; }
-        .form-group label { font-size: 0.75rem; font-weight: 700; color: #64748b; }
-        select, input, textarea { padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; width: 100%; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-secondary { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; }
+        .btn-secondary:hover { background-color: #e2e8f0; }
 
-        /* Programım Tablosu */
-        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 15px; }
-        .day-column { background: #e2e8f0; border-radius: 8px; padding: 10px; min-height: 400px; display: flex; flex-direction: column; gap: 10px; }
-        .day-header { text-align: center; font-weight: bold; font-size: 0.9rem; padding-bottom: 5px; border-bottom: 2px solid #cbd5e1; }
-        .day-time-sum { text-align: center; font-size: 0.75rem; color: #64748b; margin-bottom: 5px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        select, input, textarea { padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; width: 100%; font-size: 0.88rem; background: #fff; }
+        select:focus, input:focus { border-color: var(--primary); }
 
-        /* Ödev/Görev Kartı */
+        /* Estetik Gün Seçim Butonları */
+        .day-selector { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+        .day-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+        }
+        .day-btn.selected {
+            background: #eef2ff;
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Program Tablosu */
+        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; margin-top: 15px; }
+        .day-column { background: #f1f5f9; border-radius: 12px; padding: 12px; min-height: 420px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #e2e8f0; }
+        .day-header { text-align: center; font-weight: 700; font-size: 0.95rem; padding-bottom: 6px; border-bottom: 2px solid #cbd5e1; color: #334155; }
+        .day-time-sum { text-align: center; font-size: 0.75rem; color: #64748b; font-weight: 600; margin-top: 2px; }
+
+        /* Ödev Kartları */
         .task-card {
             background-color: white;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
             cursor: pointer;
             position: relative;
-            border-left: 4px solid var(--primary);
-            transition: transform 0.1s;
+            border-left: 5px solid var(--primary);
+            transition: all 0.2s;
         }
-        .task-card:hover { transform: translateY(-2px); }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .task-card.completed {
             background-color: var(--pastel-green-light) !important;
-            border-left-color: var(--pastel-green-dark) !important;
-            color: var(--pastel-green-border);
+            border-left-color: #22c55e !important;
+            color: var(--pastel-green-dark);
         }
-        .task-title { font-weight: 700; font-size: 0.85rem; }
+        .task-title { font-weight: 700; font-size: 0.85rem; color: #0f172a; }
         .task-sub { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
-        .task-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #e2e8f0; display: inline-block; margin-top: 5px; }
-        .checkmark-icon { display: none; position: absolute; right: 10px; top: 10px; color: var(--pastel-green-dark); }
+        .task-badge { font-size: 0.68rem; padding: 3px 8px; border-radius: 6px; background: #f1f5f9; display: inline-block; margin-top: 6px; font-weight: 600; color: #475569; }
+        .checkmark-icon { display: none; position: absolute; right: 10px; top: 10px; color: #16a34a; }
         .task-card.completed .checkmark-icon { display: block; }
 
-        /* Modal Dp p-up */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
+        /* Modal Pop-up */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 28px; border-radius: 16px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
 
-        /* Soru Sor / Çizim Alanı */
-        #canvas-container { position: relative; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #fff; margin-top: 10px; }
+        /* Range Slider */
+        .slider-container { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .slider-container input[type="range"] { flex: 1; accent-color: var(--primary); cursor: pointer; }
+
+        /* Canvas */
+        #canvas-container { border: 1px solid #cbd5e1; border-radius: 10px; overflow: hidden; background: #fff; margin-top: 10px; }
         canvas { cursor: crosshair; display: block; }
     </style>
 </head>
@@ -127,7 +155,7 @@
     <!-- Sol Menü -->
     <div id="sidebar">
         <div class="sidebar-header">
-            <span class="logo-text" style="font-weight: bold; color: #38bdf8;">KOPİLOT</span>
+            <span class="logo-text" style="font-weight: 800; font-size: 1.1rem; color: #38bdf8; letter-spacing: 0.5px;">KOPİLOT</span>
             <i data-lucide="menu" id="toggle-sidebar" style="cursor: pointer;"></i>
         </div>
         <ul class="sidebar-menu">
@@ -141,40 +169,40 @@
     <!-- Ana İçerik -->
     <div id="main-content">
         <div class="top-bar">
-            <div id="countdown" style="font-weight: 600; font-size: 0.9rem; color: #475569;">YKS 2027 Sayacı Yükleniyor...</div>
+            <div id="countdown" style="font-weight: 700; font-size: 0.9rem; color: #334155;">YKS 2027 • Hazırlık Modu</div>
             <button class="btn btn-secondary" onclick="toggleFullScreen()"><i data-lucide="maximize"></i> Tam Ekran</button>
         </div>
 
-        <!-- 1. FOTO: ANA SAYFA -->
+        <!-- 1. ANA SAYFA -->
         <div id="tab-home" class="tab-content active">
-            <h2>Hoş Geldin! 👋</h2>
-            <div style="display: flex; gap: 20px; margin-top: 20px;">
-                <div style="flex: 2; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <h3>Günün Özeti & Notlar</h3>
-                    <textarea id="home-notes" rows="8" placeholder="Buraya aldığın notlar Programlar sayfasının altındaki notlar ile senkronize çalışır..." oninput="syncNotes(this.value)"></textarea>
+            <h2 style="margin-bottom: 20px;">Hoş Geldin! 👋</h2>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 2; background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 12px; font-size: 1rem;">Günün Özeti & Notlar</h3>
+                    <textarea id="home-notes" rows="8" placeholder="Buraya yazacağın notlar program sayfasının altındaki notlarla anlık eşleşir..." oninput="syncNotes(this.value)"></textarea>
                 </div>
-                <div style="flex: 1; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <h3>Hızlı İlerleme</h3>
-                    <div id="home-progress-summary" style="margin-top: 15px; font-size: 0.9rem;">
-                        Bugün tamamlanması gereken görevler burada listelenir.
+                <div style="flex: 1; background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <h3 style="margin-bottom: 12px; font-size: 1rem;">Günün Görev Durumu</h3>
+                    <div id="home-progress-summary" style="font-size: 0.9rem; color: #64748b;">
+                        Haftalık programındaki ilerlemen burada gün gün takibe alınır.
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 2. FOTO: PROGRAMLARIM -->
+        <!-- 2. PROGRAMLARIM -->
         <div id="tab-programs" class="tab-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2>Haftalık Çalışma Programı</h2>
-                <button class="btn btn-secondary" onclick="exportProgramPDF()"><i data-lucide="download"></i> Programı İndir (PDF/Görsel)</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Haftalık Ders Programı</h2>
+                <button class="btn btn-secondary" onclick="exportProgramPDF()"><i data-lucide="download"></i> Programı İndir (PNG)</button>
             </div>
 
             <!-- Ödev Ekleme Formu -->
-            <div style="background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <div style="background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Alan</label>
-                        <select id="f-alan" onchange="updateDersOptions()">
+                        <select id="f-alan">
                             <option value="TYT">TYT</option>
                             <option value="AYT">AYT</option>
                             <option value="YDT">YDT</option>
@@ -190,7 +218,7 @@
                     </div>
                     <div class="form-group">
                         <label>Ders</label>
-                        <select id="f-ders" onchange="updateKonuOptions()"></select>
+                        <select id="f-ders" onchange="onDersChange()"></select>
                     </div>
                     <div class="form-group">
                         <label>Konu</label>
@@ -206,64 +234,64 @@
                     </div>
                     <div class="form-group">
                         <label>Miktar (Test/Video)</label>
-                        <input type="number" id="f-miktar" value="1">
+                        <input type="number" id="f-miktar" value="4">
                     </div>
                     <div class="form-group">
-                        <label>Süre (Dk / Adet)</label>
+                        <label>Süre (Dk/Adet)</label>
                         <input type="number" id="f-sure" value="30">
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 0.75rem; font-weight: 700; color: #64748b;">GÜNLERİ SEÇİN:</label>
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <label><input type="checkbox" class="day-checkbox" value="Pazartesi"> Pts</label>
-                        <label><input type="checkbox" class="day-checkbox" value="Salı"> Sal</label>
-                        <label><input type="checkbox" class="day-checkbox" value="Çarşamba"> Çrş</label>
-                        <label><input type="checkbox" class="day-checkbox" value="Perşembe"> Prş</label>
-                        <label><input type="checkbox" class="day-checkbox" value="Cuma"> Cma</label>
-                        <label><input type="checkbox" class="day-checkbox" value="Cumartesi"> Cts</label>
-                        <label><input type="checkbox" class="day-checkbox" value="Pazar"> Pzr</label>
+                <div style="margin-bottom: 18px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Çalışılacak Günler</label>
+                    <div class="day-selector">
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Pazartesi">Pazartesi</div>
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Salı">Salı</div>
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Çarşamba">Çarşamba</div>
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Perşembe">Perşembe</div>
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Cuma">Cuma</div>
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Cumartesi">Cumartesi</div>
+                        <div class="day-btn" onclick="toggleDayBtn(this)" data-day="Pazar">Pazar</div>
                     </div>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="addTask()">Programa Ödev Ekle ✨</button>
             </div>
 
-            <!-- İndirilecek Program Tablosu Alanı -->
-            <div id="printable-program-area" style="background: white; padding: 15px; border-radius: 12px;">
+            <!-- İndirilebilir Program Alanı -->
+            <div id="printable-program-area" style="background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
                 <div class="days-grid">
-                    <div class="day-column" data-day="Pazartesi"><div class="day-header">Pazartesi</div><div class="day-time-sum">0 sa 0 dk</div></div>
-                    <div class="day-column" data-day="Salı"><div class="day-header">Salı</div><div class="day-time-sum">0 sa 0 dk</div></div>
-                    <div class="day-column" data-day="Çarşamba"><div class="day-header">Çarşamba</div><div class="day-time-sum">0 sa 0 dk</div></div>
-                    <div class="day-column" data-day="Perşembe"><div class="day-header">Perşembe</div><div class="day-time-sum">0 sa 0 dk</div></div>
-                    <div class="day-column" data-day="Cuma"><div class="day-header">Cuma</div><div class="day-time-sum">0 sa 0 dk</div></div>
-                    <div class="day-column" data-day="Cumartesi"><div class="day-header">Cumartesi</div><div class="day-time-sum">0 sa 0 dk</div></div>
-                    <div class="day-column" data-day="Pazar"><div class="day-header">Pazar</div><div class="day-time-sum">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Pazartesi"><div class="day-header">Pazartesi</div><div class="day-time-sum" id="sum-Pazartesi">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Salı"><div class="day-header">Salı</div><div class="day-time-sum" id="sum-Salı">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Çarşamba"><div class="day-header">Çarşamba</div><div class="day-time-sum" id="sum-Çarşamba">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Perşembe"><div class="day-header">Perşembe</div><div class="day-time-sum" id="sum-Perşembe">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Cuma"><div class="day-header">Cuma</div><div class="day-time-sum" id="sum-Cuma">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Cumartesi"><div class="day-header">Cumartesi</div><div class="day-time-sum" id="sum-Cumartesi">0 sa 0 dk</div></div>
+                    <div class="day-column" data-day="Pazar"><div class="day-header">Pazar</div><div class="day-time-sum" id="sum-Pazar">0 sa 0 dk</div></div>
                 </div>
             </div>
 
             <!-- Alt Not Yaz Alanı -->
-            <div style="margin-top: 20px; background: white; padding: 15px; border-radius: 12px;">
-                <h3>Program Notu</h3>
-                <textarea id="program-notes" rows="3" placeholder="Program altı notlarınızı yazın..." oninput="syncNotes(this.value)"></textarea>
+            <div style="margin-top: 20px; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <h3 style="margin-bottom: 10px; font-size: 1rem;">Program Notu</h3>
+                <textarea id="program-notes" rows="3" placeholder="Haftalık çalışma veya hatırlatma notlarınızı girin..." oninput="syncNotes(this.value)"></textarea>
             </div>
         </div>
 
-        <!-- INTERAKTİF SORU / HATA DEFTERİ -->
+        <!-- 3. INTERAKTİF SORU / HATA DEFTERİ -->
         <div id="tab-questions" class="tab-content">
             <h2>İnteraktif Soru & Hata Defteri</h2>
-            <div style="display: flex; gap: 20px; margin-top: 15px;">
-                <div style="flex: 1; background: white; padding: 15px; border-radius: 12px;">
-                    <div class="form-group" style="margin-bottom: 10px;">
-                        <label>Fotoğraf Yükle</label>
+            <div style="display: flex; gap: 20px; margin-top: 20px;">
+                <div style="flex: 1; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label>Soru Fotoğrafı Yükle</label>
                         <input type="file" id="img-upload" accept="image/*" onchange="loadImage(event)">
                     </div>
-                    <div class="form-group" style="margin-bottom: 10px;">
-                        <label>Ders & Konu</label>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label>Ders ve Konu</label>
                         <input type="text" id="q-subject" placeholder="Örn: TYT Matematik - Polinomlar">
                     </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <button class="btn btn-secondary" onclick="setCanvasColor('#f43f5e')">Kırmızı Kalem</button>
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <button class="btn btn-secondary" onclick="setCanvasColor('#ef4444')">Kırmızı Kalem</button>
                         <button class="btn btn-secondary" onclick="setCanvasColor('#3b82f6')">Mavi Kalem</button>
                         <button class="btn btn-secondary" onclick="clearCanvas()">Temizle</button>
                     </div>
@@ -272,88 +300,108 @@
                     </div>
                     <button class="btn btn-primary" style="margin-top: 15px; width: 100%; justify-content: center;" onclick="saveQuestion()">Deftere Kaydet</button>
                 </div>
-                <div style="flex: 1; background: white; padding: 15px; border-radius: 12px; max-height: 600px; overflow-y: auto;">
-                    <h3>Kaydedilen Sorular</h3>
-                    <div id="saved-questions-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;"></div>
+                <div style="flex: 1; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; max-height: 650px; overflow-y: auto;">
+                    <h3>Hata Defterim</h3>
+                    <div id="saved-questions-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 5. 6. 7. 8. FOTO: DENEMELER VE İSTATİSTİK -->
+        <!-- 4. DENEMELER & İSTATİSTİK -->
         <div id="tab-exams" class="tab-content">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>Deneme Takibi & İstatistikler</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Deneme Analizi & İstatistikler</h2>
                 <button class="btn btn-primary" onclick="openExamModal()">+ Deneme Sonucu Ekle</button>
             </div>
-            
-            <div style="display: flex; gap: 20px; margin-top: 20px;">
-                <div style="flex: 2; background: white; padding: 15px; border-radius: 12px;">
-                    <canvas id="examChart" height="150"></canvas>
+
+            <!-- En Üstte Çizgi Grafiği (Line Chart) -->
+            <div style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                <h3 style="font-size: 1rem; margin-bottom: 15px;">Tarihe Göre Net Gelişim Grafiği (Çizgi)</h3>
+                <canvas id="lineChart" height="90"></canvas>
+            </div>
+
+            <div style="display: flex; gap: 20px;">
+                <!-- Altta Ders Bazlı Sütun Grafiği (Bar Chart) -->
+                <div style="flex: 2; background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <h3 style="font-size: 1rem; margin-bottom: 15px;">Ders Bazlı Ortalama Doğru / Yanlış / Net (Sütun)</h3>
+                    <canvas id="barChart" height="150"></canvas>
                 </div>
-                <!-- 8. FOTO: EKSİK KONULAR LİSTESİ -->
-                <div style="flex: 1; background: white; padding: 15px; border-radius: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3>Eksik Konularım</h3>
-                        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="openMissingTopicModal()">+ Ekle</button>
+                <!-- Eksik Konularım -->
+                <div style="flex: 1; background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="font-size: 1rem;">Eksik Konularım</h3>
+                        <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem;" onclick="openMissingTopicModal()">+ Ekle</button>
                     </div>
-                    <div id="missing-topics-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;"></div>
+                    <div id="missing-topics-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 3. FOTO: GÖREV DETAY VE DÜZENLEME MODALI -->
+    <!-- KAYDIRMALI (SLIDER) GÖREV DETAY MODALI -->
     <div id="task-modal" class="modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 id="m-task-title">Görev Detayı</h3>
+                <h3 id="m-task-title">Görev İlerlemesi</h3>
                 <i data-lucide="x" style="cursor: pointer;" onclick="closeModal('task-modal')"></i>
             </div>
-            <div id="m-task-details" style="font-size: 0.9rem; margin-bottom: 15px; color: #475569;"></div>
+            <div id="m-task-details" style="font-size: 0.9rem; margin-bottom: 15px; color: #475569; line-height: 1.5;"></div>
             
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label>Tamamlanan Miktar / İlerleme</label>
-                <input type="number" id="m-progress-input" value="0">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label>Tamamlanan Miktar / Test Sayısı</label>
+                <div class="slider-container">
+                    <input type="range" id="m-slider" min="0" value="0" oninput="updateSliderVal(this.value)">
+                    <span id="slider-val-text" style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">0</span>
+                </div>
+                <div id="slider-percent-text" style="font-weight: 700; font-size: 0.9rem; color: #16a34a; margin-top: 5px; text-align: right;">%0 Tamamlandı</div>
             </div>
             <div style="display: flex; justify-content: space-between;">
-                <button class="btn btn-secondary" onclick="removeTaskFromCurrentDay()">Bu Günden Kaldır</button>
-                <button class="btn btn-primary" onclick="saveTaskProgress()">İlerlemeyi Kaydet</button>
+                <button class="btn btn-secondary" onclick="removeTaskFromCurrentDay()">Görevi Sil</button>
+                <button class="btn btn-primary" onclick="saveTaskProgress()">Kaydet</button>
             </div>
         </div>
     </div>
 
-    <!-- 6. & 7. FOTO: DENEME EKLEME MODALI -->
+    <!-- DENEME EKLEME MODALI -->
     <div id="exam-modal" class="modal">
         <div class="modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3>Deneme Result Girişi</h3>
+                <h3>Deneme Sonucu Girişi</h3>
                 <i data-lucide="x" style="cursor: pointer;" onclick="closeModal('exam-modal')"></i>
             </div>
-            <div class="form-group" style="margin-bottom: 10px;">
-                <label>Deneme Başlığı</label>
-                <input type="text" id="e-title" placeholder="Örn: 3D Türkiye Geneli 1">
-            </div>
-            <div class="form-group" style="margin-bottom: 10px;">
-                <label>Tür</label>
-                <select id="e-type">
-                    <option value="Genel Deneme">Genel Deneme</option>
-                    <option value="Branş Deneme">Branş Deneme</option>
-                </select>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="form-group">
+                    <label>Deneme Adı</label>
+                    <input type="text" id="e-title" placeholder="Örn: 3D TG 1">
+                </div>
+                <div class="form-group">
+                    <label>Tarih</label>
+                    <input type="date" id="e-date">
+                </div>
+                <div class="form-group">
+                    <label>Tür</label>
+                    <select id="e-type">
+                        <option value="Genel Deneme">Genel Deneme</option>
+                        <option value="Branş Deneme">Branş Deneme</option>
+                    </select>
+                </div>
             </div>
             
-            <!-- Net Hesaplama Tablosu (7. Fotoğraf Yapısı) -->
-            <div style="margin-top: 15px;">
+            <div style="margin-top: 15px; max-height: 280px; overflow-y: auto;">
                 <table style="width: 100%; text-align: left; font-size: 0.85rem;" id="exam-inputs-table">
                     <thead>
-                        <tr><th>Ders Adı</th><th>Doğru</th><th>Yanlış</th><th>Net</th></tr>
+                        <tr style="border-bottom: 2px solid #e2e8f0;">
+                            <th style="padding: 8px;">Ders</th>
+                            <th style="padding: 8px;">Doğru</th>
+                            <th style="padding: 8px;">Yanlış</th>
+                            <th style="padding: 8px;">Net</th>
+                        </tr>
                     </thead>
-                    <tbody>
-                        <!-- Dinamik doldurulacak -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
 
-            <button class="btn btn-primary" style="width: 100%; margin-top: 15px; justify-content: center;" onclick="saveExam()">Sonuçları Kaydet</button>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 20px; justify-content: center;" onclick="saveExam()">Sonuçları Kaydet</button>
         </div>
     </div>
 
@@ -361,8 +409,8 @@
     <div id="missing-topic-modal" class="modal">
         <div class="modal-content">
             <h3>Eksik Konu Ekle</h3>
-            <div class="form-group" style="margin-top: 10px;">
-                <label>Ders ve Konu</label>
+            <div class="form-group" style="margin-top: 12px;">
+                <label>Ders ve Konu Adı</label>
                 <input type="text" id="mt-text" placeholder="Örn: AYT Fizik - Vektörler">
             </div>
             <button class="btn btn-primary" style="width: 100%; margin-top: 15px; justify-content: center;" onclick="addMissingTopic()">Ekle</button>
@@ -370,38 +418,75 @@
     </div>
 
     <script>
-        /* PDF Verileri Veritabanı */
+        /* PDF VERİLERİ (DERS BAZLI AYRILMIŞ HOCA VE KAYNAKLAR) */
         const pdfData = {
-            hocalar: ["Mert Hoca", "Eyüp B", "Rehber Matematik", "Mathman", "Bıyıklı Matematik", "Anıl Hoca", "Matematiğin Güler Yüzü", "Tunç Kurt", "Kenan Kara", "Merkeze Teğet", "Rüştü Hoca", "Aker Kartal", "Kadir Gümüş", "Deniz Hoca", "Vip Fizik", "Özcan Aykın", "Altuğ Güneş", "Fizikle Barış", "Ertan Sinan Şahin", "Kimya Adası", "Görkem Şahin", "Ferrum", "Dr Biyoloji", "Selin Hoca", "Biosem", "Betül Biyoloji"],
-            kaynaklar: ["3D Yayınları", "345 Yayınları", "Bilgi Sarmal", "Apotemi", "Orijinal Yayınları", "Karekök Yayınları", "Hız ve Renk", "Limit Yayınları", "Aydın Yayınları", "Palme Yayınları", "Barış Çelenk Yayınları", "Biyotik", "Orbital Yayınları"],
-            konular: {
-                "Türkçe": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf", "Ses Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", "Sözcükte Yapı/Ekler", "Cümlenin Ögeleri"],
-                "Matematik": ["Temel Kavramlar", "Sayı Basamakları", "Bölme Bölünebilme", "EBOB EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Problemler", "Fonksiyonlar", "Polinomlar", "Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"],
-                "Geometri": ["Doğruda Açılar", "Üçgende Açılar", "Özel Üçgenler", "Çokgenler", "Dörtgenler", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler"],
-                "Fizik": ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Hareket ve Kuvvet", "İş Güç Enerji", "Elektrik", "Optik", "Vektörler", "Tork ve Denge", "Çembersel Hareket"],
-                "Kimya": ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Maddenin Halleri", "Karışımlar", "Asit Baz Tuz", "Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler", "Kimya ve Elektrik", "Organik Kimya"],
-                "Biyoloji": ["Canlıların Ortak Özellikleri", "Hücre ve Organelleri", "Kalıtım", "Ekosistem", "İnsan Fizyolojisi / Sistemler", "Genden Proteine", "Bitki Biyolojisi"]
+            "Türkçe": {
+                hocalar: ["Rüştü Hoca", "Aker Kartal", "Kadir Gümüş", "Eyüp Hoca", "Deniz Hoca"],
+                kaynaklar: ["Hız ve Renk Yayınları Paragraf", "Okyanus Master Paragraf", "345 TYT Paragraf", "Bilgi Sarmal Paragraf", "Toprak Yayınları Paragraf", "Karekök Rutin Olmayan Paragraf", "Limit Kronometre Paragraf", "Apotemi Paragraf", "Karakutu Dil Bilgisi", "Aydın Yayınları Dil Bilgisi", "345 TYT Türkçe", "Orijinal TYT Türkçe", "Palme TYT Türkçe"],
+                konular: ["Sözcükte Anlam", "Söz Yorumu", "Cümlede Anlam", "Paragraf", "Paragrafta Anlatım Teknikleri", "Ses Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", "Sözcükte Yapı/Ekler", "Sözcük Türleri", "Cümlenin Ögeleri", "Anlatım Bozukluğu"]
+            },
+            "Matematik": {
+                hocalar: ["Mert Hoca", "Eyüp B", "Rehber Matematik", "Mathman", "Bıyıklı Matematik", "Anıl Hoca", "Matematiğin Güler Yüzü", "Tunç Kurt"],
+                kaynaklar: ["Karekök TYT Matematik Sıfır", "Mert Hoca TYT Matematik Kampı", "345 TYT Matematik", "Bilgi Sarmal TYT Matematik", "3D TYT Matematik", "Orijinal TYT Matematik", "Apotemi TYT Matematik", "Antrenmanlarla Matematik Problemler", "Çap Problemler", "3D Problemler", "Apotemi Problemler", "345 AYT Matematik", "Bilgi Sarmal AYT Matematik", "3D AYT Matematik", "Orijinal AYT Matematik", "Apotemi Türev-İntegral-Trigonometri", "Barış Çelenk AYT Matematik"],
+                konular: ["Temel Kavramlar", "Sayı Basamakları", "Bölme ve Bölünebilme", "EBOB EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran Orantı", "Problemler", "Kümeler", "Mantık", "Fonksiyonlar", "Polinomlar", "2. Dereceden Denklemler", "Permütasyon-Kombinasyon-Olasılık", "Trigonometri", "Logaritma", "Diziler", "Limit", "Türev", "İntegral"]
+            },
+            "Geometri": {
+                hocalar: ["Kenan Kara", "Merkeze Teğet", "Şükrü Akkoyun", "Eyüp B", "Mert Hoca"],
+                kaynaklar: ["Karekök Geometri Sıfır", "Birey A Kolay Geometri", "Kenan Kara Geometri", "345 Geometri", "Bilgi Sarmal Geometri", "3D Geometri", "Orijinal Geometri", "Acil Geometri", "Apotemi Geometri"],
+                konular: ["Doğruda Açılar", "Üçgende Açılar", "Özel Üçgenler", "Açıortay-Kenarortay", "Üçgende Alan", "Eşlik ve Benzerlik", "Çokgenler", "Dörtgenler", "Paralelkenar", "Dikdörtgen-Kare", "Çember ve Daire", "Analitik Geometri", "Katı Cisimler"]
+            },
+            "Fizik": {
+                hocalar: ["Vip Fizik", "Özcan Aykın", "Altuğ Güneş", "Fizikle Barış", "Ertan Sinan Şahin", "Fizik Evim"],
+                kaynaklar: ["Aktif AYT Fizik", "Palme AYT Fizik", "Esen Üçrenk", "345 AYT Fizik", "Bilgi Sarmal AYT Fizik", "Ertan Sinan Şahin Seti", "3D AYT Fizik", "Aydın AYT Fizik", "Nihat Bilgin AYT Fizik", "Apotemi AYT Fizik"],
+                konular: ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Basınç ve Kaldırma Kuvveti", "Isı Sıcaklık Genleşme", "Hareket ve Kuvvet", "İş Güç Enerji", "Elektrik ve Manyetizma", "Optik", "Dalgalar", "Vektörler", "Tork ve Denge", "Çembersel Hareket", "Basit Harmonik Hareket", "Modern Fizik"]
+            },
+            "Kimya": {
+                hocalar: ["Kimya Adası", "Görkem Şahin", "Ferrum", "Semih Balmuk", "Kimya Özel", "Sinan İhtiyaroğlu"],
+                kaynaklar: ["Kimya Adası AYT Kimya", "Benim Hocam AYT Kimya", "Hız ve Renk AYT Kimya", "345 AYT Kimya", "Bilgi Sarmal AYT Kimya", "Palme AYT Kimya", "Aydın AYT Kimya", "3D AYT Kimya", "Orbital AYT Kimya", "Apotemi Organik Kimya"],
+                konular: ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", "Maddenin Halleri", "Kimyanın Temel Kanunları", "Karışımlar", "Asit Baz Tuz", "Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler", "Kimyasal Tepkimelerde Denge", "Kimya ve Elektrik", "Organik Kimya"]
+            },
+            "Biyoloji": {
+                hocalar: ["Dr Biyoloji", "Selin Hoca", "Biosem", "Betül Biyoloji", "Fundamentals"],
+                kaynaklar: ["Selin Hoca AYT Biyoloji", "Hız ve Renk AYT Biyoloji", "Biyotik AYT Biyoloji", "345 AYT Biyoloji", "Bilgi Sarmal AYT Biyoloji", "Palme AYT Biyoloji", "3D AYT Biyoloji", "Aydın AYT Biyoloji", "Apotemi Sistemler", "Biyoanaliz", "Çap Bitki"],
+                konular: ["Canlıların Ortak Özellikleri", "Hücre ve Organelleri", "Canlıların Sınıflandırılması", "Mitoz ve Mayoz", "Kalıtım", "Ekosistem Ekolojisi", "İnsan Fizyolojisi / Sistemler", "Genden Proteine", "Canlılarda Enerji Dönüşümleri", "Bitki Biyolojisi"]
+            },
+            "Sosyal": {
+                hocalar: ["Coğrafyanın Kodları", "Felsefe Atölyesi"],
+                kaynaklar: ["345 Sosyal Bilimler", "Bilgi Sarmal Sosyal", "Hız ve Renk Sosyal"],
+                konular: ["Tarih ve Zaman", "Milli Mücadele", "Atatürkçülük", "Coğrafi Konum", "İklimler", "Harita Bilgisi", "Bilgi Felsefesi", "Ahlak Felsefesi", "Din ve İbadet"]
             }
+        };
+
+        const dersRenkleri = {
+            "Türkçe": "#ec4899",
+            "Tarih": "#eab308",
+            "Coğrafya": "#84cc16",
+            "Din": "#14b8a6",
+            "Felsefe": "#a855f7",
+            "Matematik": "#6366f1",
+            "Fizik": "#3b82f6",
+            "Kimya": "#06b6d4",
+            "Biyoloji": "#10b981"
         };
 
         let tasks = [];
         let exams = [];
         let missingTopics = [];
         let selectedTaskIndex = null;
-        let chartInstance = null;
+        let lineChartInstance = null;
+        let barChartInstance = null;
 
-        /* Başlangıç Yüklemeleri */
         window.onload = function() {
             lucide.createIcons();
-            initFormSelectors();
+            initDersSelect();
             initExamTable();
             initCanvas();
             renderProgram();
             renderMissingTopics();
-            initChart();
+            initCharts();
+            document.getElementById('e-date').valueToDate = new Date();
         };
 
-        /* Sol Menü Daraltma/Genişletme */
         document.getElementById('toggle-sidebar').addEventListener('click', () => {
             document.getElementById('sidebar').classList.toggle('collapsed');
         });
@@ -413,37 +498,35 @@
         }
 
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
         }
 
-        /* Form Dinamik Seçenekler */
-        function initFormSelectors() {
+        /* DERS BAZLI DİNAMİK SEÇİMLER */
+        function initDersSelect() {
             const dersSelect = document.getElementById('f-ders');
-            const hocaSelect = document.getElementById('f-hoca');
-            const kaynakSelect = document.getElementById('f-kaynak');
-
-            dersSelect.innerHTML = Object.keys(pdfData.konular).map(d => `<option value="${d}">${d}</option>`).join('');
-            hocaSelect.innerHTML = pdfData.hocalar.map(h => `<option value="${h}">${h}</option>`).join('');
-            kaynakSelect.innerHTML = pdfData.kaynaklar.map(k => `<option value="${k}">${k}</option>`).join('');
-            updateKonuOptions();
+            dersSelect.innerHTML = Object.keys(pdfData).map(d => `<option value="${d}">${d}</option>`).join('');
+            onDersChange();
         }
 
-        function updateKonuOptions() {
+        function onDersChange() {
             const ders = document.getElementById('f-ders').value;
-            const konuSelect = document.getElementById('f-konu');
-            konuSelect.innerHTML = pdfData.konular[ders].map(k => `<option value="${k}">${k}</option>`).join('');
+            const data = pdfData[ders] || { hocalar: [], kaynaklar: [], konular: [] };
+
+            document.getElementById('f-hoca').innerHTML = data.hocalar.map(h => `<option value="${h}">${h}</option>`).join('');
+            document.getElementById('f-kaynak').innerHTML = data.kaynaklar.map(k => `<option value="${k}">${k}</option>`).join('');
+            document.getElementById('f-konu').innerHTML = data.konular.map(k => `<option value="${k}">${k}</option>`).join('');
         }
 
-        function updateDersOptions() {}
+        /* ESTETİK GÜN SEÇİMİ */
+        function toggleDayBtn(btn) {
+            btn.classList.toggle('selected');
+        }
 
-        /* Ödev Ekleme & Program Oluşturma (Foto 2, 3, 4) */
+        /* PROGRAM VE ÖDEV İŞLEMLERİ */
         function addTask() {
-            const days = Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => cb.value);
-            if(days.length === 0) { alert('Lütfen en az bir gün seçin!'); return; }
+            const selectedDays = Array.from(document.querySelectorAll('.day-btn.selected')).map(b => b.getAttribute('data-day'));
+            if (selectedDays.length === 0) { alert('Lütfen en az bir gün seçin!'); return; }
 
             const task = {
                 id: Date.now(),
@@ -453,9 +536,9 @@
                 konu: document.getElementById('f-konu').value,
                 hoca: document.getElementById('f-hoca').value,
                 kaynak: document.getElementById('f-kaynak').value,
-                miktar: parseInt(document.getElementById('f-miktar').value),
-                sure: parseInt(document.getElementById('f-sure').value),
-                days: days,
+                miktar: parseInt(document.getElementById('f-miktar').value) || 1,
+                sure: parseInt(document.getElementById('f-sure').value) || 30,
+                days: selectedDays,
                 progress: 0
             };
 
@@ -478,13 +561,14 @@
 
                         const card = document.createElement('div');
                         card.className = `task-card ${isCompleted ? 'completed' : ''}`;
+                        card.style.borderLeftColor = dersRenkleri[task.ders] || '#6366f1';
                         card.onclick = () => openTaskModal(task.id);
                         card.innerHTML = `
                             <i data-lucide="check-circle" class="checkmark-icon"></i>
                             <div class="task-title">${task.alan} ${task.konu}</div>
-                            <div class="task-sub">${task.kaynak} - ${task.hoca}</div>
-                            <div class="task-badge">${task.tur} • ${task.miktar} Adet</div>
-                            <div style="margin-top: 5px; font-weight: bold; font-size:0.7rem;">%${percent} Tamamlandı</div>
+                            <div class="task-sub">${task.kaynak} • ${task.hoca}</div>
+                            <div class="task-badge">${task.tur} (${task.progress}/${task.miktar})</div>
+                            <div style="margin-top: 6px; font-weight: 700; font-size:0.72rem; color:${isCompleted ? '#166534' : '#4f46e5'}">%${percent} Tamamlandı</div>
                         `;
                         col.appendChild(card);
                     }
@@ -497,7 +581,7 @@
             lucide.createIcons();
         }
 
-        /* Görev Detay Modalı (Foto 3) */
+        /* KAYDIRMALI SLIDER MODALI */
         function openTaskModal(taskId) {
             selectedTaskIndex = tasks.findIndex(t => t.id === taskId);
             const task = tasks[selectedTaskIndex];
@@ -506,16 +590,30 @@
             document.getElementById('m-task-details').innerHTML = `
                 <b>Hoca:</b> ${task.hoca} <br>
                 <b>Kaynak:</b> ${task.kaynak} <br>
-                <b>Hedef Miktar:</b> ${task.miktar} <br>
-                <b>Planlanan Günler:</b> ${task.days.join(', ')}
+                <b>Toplam Hedef Miktar:</b> ${task.miktar} Test/Video <br>
+                <b>Günler:</b> ${task.days.join(', ')}
             `;
-            document.getElementById('m-progress-input').value = task.progress;
+            
+            const slider = document.getElementById('m-slider');
+            slider.max = task.miktar;
+            slider.value = task.progress;
+            updateSliderVal(task.progress);
+
             document.getElementById('task-modal').style.display = 'flex';
+        }
+
+        function updateSliderVal(val) {
+            document.getElementById('slider-val-text').innerText = val;
+            if (selectedTaskIndex !== null) {
+                const max = tasks[selectedTaskIndex].miktar;
+                const percent = Math.min(100, Math.round((val / max) * 100));
+                document.getElementById('slider-percent-text').innerText = `%${percent} Tamamlandı`;
+            }
         }
 
         function saveTaskProgress() {
             if (selectedTaskIndex !== null) {
-                tasks[selectedTaskIndex].progress = parseInt(document.getElementById('m-progress-input').value);
+                tasks[selectedTaskIndex].progress = parseInt(document.getElementById('m-slider').value);
                 renderProgram();
                 closeModal('task-modal');
             }
@@ -529,16 +627,17 @@
             }
         }
 
-        /* Deneme İşlemleri (Foto 5, 6, 7, 8) */
+        /* DENEME GRAFİKLERİ VE TABLOSU */
         const derslerList = ["Türkçe", "Tarih", "Coğrafya", "Din", "Felsefe", "Matematik", "Fizik", "Kimya", "Biyoloji"];
+        
         function initExamTable() {
             const tbody = document.querySelector('#exam-inputs-table tbody');
             tbody.innerHTML = derslerList.map(d => `
-                <tr>
-                    <td>${d}</td>
-                    <td><input type="number" class="e-d" data-ders="${d}" value="0" onchange="calcNets()"></td>
-                    <td><input type="number" class="e-y" data-ders="${d}" value="0" onchange="calcNets()"></td>
-                    <td><span class="e-n" id="net-${d}">0.00</span></td>
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 6px; font-weight:600; color:${dersRenkleri[d] || '#000'}">${d}</td>
+                    <td style="padding: 6px;"><input type="number" class="e-d" data-ders="${d}" value="0" style="padding:4px 8px;" onchange="calcNets()"></td>
+                    <td style="padding: 6px;"><input type="number" class="e-y" data-ders="${d}" value="0" style="padding:4px 8px;" onchange="calcNets()"></td>
+                    <td style="padding: 6px;"><span class="e-n" id="net-${d}" style="font-weight:700;">0.00</span></td>
                 </tr>
             `).join('');
         }
@@ -556,33 +655,82 @@
         }
 
         function openExamModal() { document.getElementById('exam-modal').style.display = 'flex'; }
-        
+
         function saveExam() {
             const title = document.getElementById('e-title').value || 'Deneme';
-            const totalNet = calcNets();
-            exams.push({ title, net: totalNet });
-            updateChart();
+            const date = document.getElementById('e-date').value || new Date().toISOString().split('T')[0];
+            const type = document.getElementById('e-type').value;
+
+            const scores = {};
+            derslerList.forEach(d => {
+                const correct = parseFloat(document.querySelector(`.e-d[data-ders="${d}"]`).value) || 0;
+                const wrong = parseFloat(document.querySelector(`.e-y[data-ders="${d}"]`).value) || 0;
+                scores[d] = { correct, wrong, net: Math.max(0, correct - (wrong * 0.25)) };
+            });
+
+            const totalNet = Object.values(scores).reduce((acc, curr) => acc + curr.net, 0);
+
+            exams.push({ title, date, type, scores, totalNet });
+            updateCharts();
             closeModal('exam-modal');
         }
 
-        function initChart() {
-            const ctx = document.getElementById('examChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
+        function initCharts() {
+            // Çizgi Grafiği
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            lineChartInstance = new Chart(ctxLine, {
                 type: 'line',
                 data: {
                     labels: [],
-                    datasets: [{ label: 'Toplam Net İlerlemesi', data: [], borderColor: '#f43f5e', tension: 0.3 }]
-                }
+                    datasets: [{
+                        label: 'Toplam Net',
+                        data: [],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 3
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: true } } }
+            });
+
+            // Sütun Grafiği
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: derslerList,
+                    datasets: [
+                        { label: 'Ortalama Doğru', data: derslerList.map(() => 0), backgroundColor: '#22c55e' },
+                        { label: 'Ortalama Yanlış', data: derslerList.map(() => 0), backgroundColor: '#ef4444' },
+                        { label: 'Ortalama Net', data: derslerList.map(() => 0), backgroundColor: '#6366f1' }
+                    ]
+                },
+                options: { responsive: true }
             });
         }
 
-        function updateChart() {
-            chartInstance.data.labels = exams.map(e => e.title);
-            chartInstance.data.datasets[0].data = exams.map(e => e.net);
-            chartInstance.update();
+        function updateCharts() {
+            // Çizgi Grafiği Güncelle
+            lineChartInstance.data.labels = exams.map(e => `${e.title} (${e.date})`);
+            lineChartInstance.data.datasets[0].data = exams.map(e => e.totalNet);
+            lineChartInstance.update();
+
+            // Sütun Grafiği Ortalamalarını Güncelle
+            if (exams.length > 0) {
+                const avgCorrect = derslerList.map(d => (exams.reduce((acc, curr) => acc + (curr.scores[d]?.correct || 0), 0) / exams.length).toFixed(1));
+                const avgWrong = derslerList.map(d => (exams.reduce((acc, curr) => acc + (curr.scores[d]?.wrong || 0), 0) / exams.length).toFixed(1));
+                const avgNet = derslerList.map(d => (exams.reduce((acc, curr) => acc + (curr.scores[d]?.net || 0), 0) / exams.length).toFixed(1));
+
+                barChartInstance.data.datasets[0].data = avgCorrect;
+                barChartInstance.data.datasets[1].data = avgWrong;
+                barChartInstance.data.datasets[2].data = avgNet;
+                barChartInstance.update();
+            }
         }
 
-        /* Eksik Konular Listesi (Foto 8) */
+        /* EKSİK KONULAR */
         function openMissingTopicModal() { document.getElementById('missing-topic-modal').style.display = 'flex'; }
         
         function addMissingTopic() {
@@ -597,8 +745,8 @@
         function renderMissingTopics() {
             const container = document.getElementById('missing-topics-list');
             container.innerHTML = missingTopics.map((item, idx) => `
-                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 8px; border-radius: 6px;">
-                    <span style="${item.done ? 'text-decoration: line-through; color: #94a3b8;' : ''}">${item.text}</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 10px; border-radius: 8px; border:1px solid #e2e8f0;">
+                    <span style="${item.done ? 'text-decoration: line-through; color: #94a3b8;' : 'font-weight:500;'}">${item.text}</span>
                     <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleMissingTopic(${idx})">
                 </div>
             `).join('');
@@ -609,9 +757,8 @@
             renderMissingTopics();
         }
 
-        /* İnteraktif Soru Defteri Çizim Canvası */
-        let canvas, ctx, drawing = false, canvasColor = '#f43f5e', savedQuestions = [];
-        
+        /* CANVAS ÇİZİM */
+        let canvas, ctx, drawing = false, canvasColor = '#ef4444', savedQuestions = [];
         function initCanvas() {
             canvas = document.getElementById('question-canvas');
             ctx = canvas.getContext('2d');
@@ -650,7 +797,7 @@
 
         function saveQuestion() {
             const dataUrl = canvas.toDataURL();
-            const subject = document.getElementById('q-subject').value || 'Genel Soru';
+            const subject = document.getElementById('q-subject').value || 'Soru';
             savedQuestions.push({ dataUrl, subject });
             renderSavedQuestions();
             clearCanvas();
@@ -659,20 +806,18 @@
         function renderSavedQuestions() {
             const container = document.getElementById('saved-questions-list');
             container.innerHTML = savedQuestions.map(q => `
-                <div style="border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px;">
-                    <div style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px;">${q.subject}</div>
-                    <img src="${q.dataUrl}" style="width: 100%; border-radius: 6px;">
+                <div style="border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; background:#fff;">
+                    <div style="font-weight: bold; font-size: 0.85rem; margin-bottom: 6px;">${q.subject}</div>
+                    <img src="${q.dataUrl}" style="width: 100%; border-radius: 8px;">
                 </div>
             `).join('');
         }
 
-        /* Not Senkronizasyonu */
         function syncNotes(val) {
             document.getElementById('home-notes').value = val;
             document.getElementById('program-notes').value = val;
         }
 
-        /* Sadece Program Tablosunu İndirme Özelliği */
         function exportProgramPDF() {
             const element = document.getElementById('printable-program-area');
             html2canvas(element).then(canvas => {
