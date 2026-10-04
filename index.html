@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YKS Master - Ders & Program Takibi</title>
+    <title>YKS Master - Gelişmiş Ders & Program Takibi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,14 +11,19 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #18181b; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        
+        .drag-over {
+            border: 2px dashed #6366f1 !important;
+            background-color: rgba(99, 102, 241, 0.08) !important;
+        }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col md:flex-row">
 
     <!-- SOL SIDEBAR -->
-    <aside class="w-full md:w-64 bg-zinc-900 border-b md:border-b-0 md:border-r border-zinc-800 p-5 flex flex-col justify-between shrink-0">
+    <aside class="w-full md:w-64 bg-zinc-900/80 border-b md:border-b-0 md:border-r border-zinc-800 p-5 flex flex-col justify-between shrink-0 backdrop-blur-md">
         <div>
             <div class="flex items-center gap-3 mb-8">
                 <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
@@ -26,7 +31,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">YKS Master</h1>
-                    <p class="text-xs text-zinc-400">Hedef YKS 2027</p>
+                    <p class="text-xs text-indigo-400 font-semibold">Hedef YKS 2027</p>
                 </div>
             </div>
 
@@ -50,10 +55,10 @@
             </nav>
         </div>
 
-        <div class="mt-8 p-4 bg-zinc-950 rounded-xl border border-zinc-800 text-center">
-            <p class="text-xs text-zinc-400">Çalışma Sayacı</p>
-            <p id="sidebar-timer-disp" class="text-xl font-bold text-indigo-400 my-1">00:00:00</p>
-            <span id="sidebar-status-badge" class="inline-block px-2 py-0.5 text-[10px] bg-zinc-800 text-zinc-400 rounded-full">Boşta</span>
+        <div class="mt-8 p-4 bg-zinc-950 rounded-2xl border border-zinc-800/80 text-center">
+            <p class="text-xs text-zinc-400">Günlük Çalışma Süren</p>
+            <p id="sidebar-timer-disp" class="text-2xl font-black text-indigo-400 my-1 font-mono">00:00:00</p>
+            <span id="sidebar-status-badge" class="inline-block px-2.5 py-0.5 text-[10px] font-semibold bg-zinc-800 text-zinc-400 rounded-full">Boşta</span>
         </div>
     </aside>
 
@@ -65,35 +70,35 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <div>
                     <h2 class="text-2xl font-bold">Ders Oynatma Listeleri & Videolar</h2>
-                    <p class="text-sm text-zinc-400">Oynatma listelerini seç, videoları izle ve tamamladıkça tikle!</p>
+                    <p class="text-sm text-zinc-400">Tüm videolar listede otomatik açılır. İzlediğin videoyu tikleyerek takip et!</p>
                 </div>
-                <button onclick="openPlaylistModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm rounded-xl transition flex items-center gap-2">
+                <button onclick="openPlaylistModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
                     <i class="fa-solid fa-plus"></i> Yeni Playlist Ekle
                 </button>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Sol/Orta: Video Player & Aktif Video Detayı -->
+                <!-- Sol/Orta: Video Player -->
                 <div class="lg:col-span-2 space-y-4">
-                    <div class="aspect-video bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 shadow-xl relative">
+                    <div class="aspect-video bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl relative">
                         <iframe id="main-player" class="w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLto0Y-Oz3y1of5PHEoL9WTJaGaoi4CyCW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                     <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <span id="active-playlist-tag" class="px-2.5 py-1 text-xs bg-indigo-950 text-indigo-400 rounded-md font-semibold border border-indigo-800/50">Geometri VDK</span>
-                            <h3 id="active-video-title" class="text-lg font-bold mt-2">1. Video: Doğruda Açılar - Ders 1</h3>
+                            <span id="active-playlist-tag" class="px-2.5 py-1 text-xs bg-indigo-950 text-indigo-400 rounded-md font-semibold border border-indigo-800/50">Kartezyen Çarpım & Kümeler</span>
+                            <h3 id="active-video-title" class="text-lg font-bold mt-2 text-zinc-100">Ders 114 - Kümeler Kartezyen Çarpım</h3>
                         </div>
-                        <button id="btn-toggle-active-complete" onclick="toggleActiveVideoComplete()" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-800/50 font-medium text-sm rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-check"></i> <span>İzlendi Olarak İşaretle</span>
+                        <button id="btn-toggle-active-complete" onclick="toggleActiveVideoComplete()" class="px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-800/50 font-semibold text-sm rounded-xl transition flex items-center gap-2 shrink-0">
+                            <i class="fa-regular fa-circle"></i> <span>İzlendi Olarak İşaretle</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Sağ: Oynatma Listeleri ve Alt Videoları -->
-                <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex flex-col h-[550px]">
+                <!-- Sağ: Oynatma Listeleri ve İçindeki Tüm Videolar -->
+                <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex flex-col h-[580px]">
                     <h3 class="font-bold text-base border-b border-zinc-800 pb-3 flex items-center justify-between">
-                        <span>Oynatma Listelerin</span>
-                        <span id="playlist-count" class="text-xs text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded-full">2 Liste</span>
+                        <span>Kayıtlı Oynatma Listeleri</span>
+                        <span id="playlist-count" class="text-xs text-zinc-400 bg-zinc-800 px-2.5 py-1 rounded-full font-semibold">2 Liste</span>
                     </h3>
                     
                     <div id="playlists-container" class="space-y-3 overflow-y-auto mt-4 pr-1 flex-1">
@@ -108,9 +113,9 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <div>
                     <h2 class="text-2xl font-bold">Haftalık Ders Çalışma Programı</h2>
-                    <p class="text-sm text-zinc-400">Videolarını ve testlerini günlere dağıtarak planla.</p>
+                    <p class="text-sm text-zinc-400">Görevleri günlere dağıt. Sürükleyip başka güne taşıyabilir veya kartlara tıklayarak ilerleme kaydedebilirsin!</p>
                 </div>
-                <button onclick="openProgramModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm rounded-xl transition flex items-center gap-2">
+                <button onclick="openProgramModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
                     <i class="fa-solid fa-plus"></i> Programa Ders / Video Ekle
                 </button>
             </div>
@@ -122,13 +127,13 @@
 
         <!-- TAB 3: YPT KRONOMETRE -->
         <section id="tab-timer" class="hidden space-y-6">
-            <div class="max-w-xl mx-auto bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center space-y-6">
+            <div class="max-w-xl mx-auto bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center space-y-6 shadow-2xl">
                 <h2 class="text-2xl font-bold">YPT Odaklanma Kronometresi</h2>
-                <div class="text-6xl font-extrabold tracking-wider text-indigo-400 py-6 bg-zinc-950 rounded-2xl border border-zinc-800/80 font-mono" id="main-timer-disp">
+                <div class="text-6xl font-extrabold tracking-wider text-indigo-400 py-8 bg-zinc-950 rounded-2xl border border-zinc-800/80 font-mono shadow-inner" id="main-timer-disp">
                     00:00:00
                 </div>
                 <div class="flex justify-center gap-3">
-                    <button id="btn-timer-start" onclick="startTimer()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition flex items-center gap-2">
+                    <button id="btn-timer-start" onclick="startTimer()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
                         <i class="fa-solid fa-play"></i> Başlat
                     </button>
                     <button id="btn-timer-pause" onclick="pauseTimer()" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 font-semibold rounded-xl transition flex items-center gap-2" disabled>
@@ -154,15 +159,14 @@
     </main>
 
     <!-- MODAL 1: PROGRAMA DERS / VİDEO EKLE -->
-    <div id="modal-program" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+    <div id="modal-program" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                <h3 class="text-lg font-bold">Programa Ders Ekle</h3>
+                <h3 class="text-lg font-bold">Programa Ders / Görev Ekle</h3>
                 <button onclick="closeProgramModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
 
             <div class="space-y-4 text-sm">
-                <!-- Alan -->
                 <div>
                     <label class="block text-xs font-semibold text-zinc-400 mb-1">Alan</label>
                     <select id="prog-alan" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
@@ -171,7 +175,6 @@
                     </select>
                 </div>
 
-                <!-- Ders -->
                 <div>
                     <label class="block text-xs font-semibold text-zinc-400 mb-1">Ders</label>
                     <select id="prog-ders" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
@@ -183,17 +186,14 @@
                         <option value="Türkçe">Türkçe / Edebiyat</option>
                         <option value="Tarih">Tarih</option>
                         <option value="Coğrafya">Coğrafya</option>
-                        <option value="Felsefe">Felsefe/Din</option>
                     </select>
                 </div>
 
-                <!-- Konu -->
                 <div>
                     <label class="block text-xs font-semibold text-zinc-400 mb-1">Konu Adı</label>
                     <input type="text" id="prog-konu" placeholder="Örn: Kartezyen Çarpım" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
                 </div>
 
-                <!-- Çalışma Yöntemi -->
                 <div>
                     <label class="block text-xs font-semibold text-zinc-400 mb-1">Çalışma Yöntemi</label>
                     <select id="prog-yontem" onchange="toggleVideoSection()" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
@@ -204,33 +204,28 @@
                     </select>
                 </div>
 
-                <!-- Yöntem = Video İse Açılan Bölüm -->
+                <!-- Video Seçim Paneli -->
                 <div id="video-select-section" class="p-4 bg-zinc-950 border border-indigo-900/50 rounded-xl space-y-3">
-                    <label class="block text-xs font-semibold text-indigo-400">Kayıtlı Oynatma Listesinden Video Seç</label>
+                    <label class="block text-xs font-semibold text-indigo-400">Oynatma Listesinden Videoları Seç</label>
                     <select id="prog-playlist-select" onchange="loadPlaylistVideosForProgram()" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-xs text-zinc-200">
-                        <!-- JS ile Dolacak -->
                     </select>
-
                     <div id="prog-video-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                        <!-- Videolar tik kutuları ile JS ile listelenecek -->
                     </div>
                 </div>
 
-                <!-- Test / Video Sayısı & Süre -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-zinc-400 mb-1">Test / Video Sayısı</label>
-                        <input type="number" id="prog-sayi" value="1" min="1" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
+                        <input type="number" id="prog-sayi" value="6" min="1" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-zinc-400 mb-1">1 Tanesi İçin Süre (Dk)</label>
-                        <input type="number" id="prog-sure" value="30" min="5" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
+                        <input type="number" id="prog-sure" value="25" min="5" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
 
-                <!-- Günler Tik Kutuları -->
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-400 mb-2">Eklenecek Günler</label>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-2">Dağıtılacak Günler</label>
                     <div class="grid grid-cols-4 gap-2 text-xs">
                         <label class="flex items-center gap-1.5 bg-zinc-950 p-2.5 rounded-lg border border-zinc-800 cursor-pointer">
                             <input type="checkbox" name="prog-gun" value="Pazartesi" class="accent-indigo-600"> Pazartesi
@@ -256,47 +251,105 @@
                     </div>
                 </div>
 
-                <button onclick="saveProgramItem()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-center">
+                <button onclick="saveProgramItem()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition text-center shadow-lg shadow-indigo-600/20">
                     Programa Ekle
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 2: PLAYLIST EKLE -->
-    <div id="modal-playlist" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-2xl p-6 space-y-4">
+    <!-- MODAL 2: GÖREV DETAYI & İLERLEME / GÜN DÜZENLEME -->
+    <div id="modal-task-detail" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-2xl p-6 space-y-5 shadow-2xl">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
-                <h3 class="text-lg font-bold">Yeni Oynatma Listesi Ekle</h3>
-                <button onclick="closePlaylistModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <span id="detail-task-tag" class="px-2.5 py-0.5 text-xs bg-indigo-950 text-indigo-400 font-bold rounded">TYT - Matematik</span>
+                <button onclick="closeTaskDetailModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="space-y-3 text-sm">
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-400 mb-1">Liste Başlığı</label>
-                    <input type="text" id="pl-title" placeholder="Örn: Eyüp B. Kartezyen Çarpım" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
+
+            <div>
+                <h3 id="detail-task-title" class="text-lg font-bold text-zinc-100">Kartezyen Çarpım</h3>
+                <p id="detail-task-sub" class="text-xs text-zinc-400 mt-1">Soru Bankası Çözümü</p>
+            </div>
+
+            <!-- İlerleme Barı -->
+            <div class="space-y-2 bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                <div class="flex justify-between items-center text-xs font-semibold">
+                    <span>Tamamlanma Durumu</span>
+                    <span id="detail-progress-percent" class="text-indigo-400 font-bold">0%</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-400 mb-1">YouTube Playlist ID veya Linki</label>
-                    <input type="text" id="pl-url" placeholder="list=PLfL-HD-UxFsoMtm8k6XnszjSlVgzRCzKM" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
+                <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden">
+                    <div id="detail-progress-bar" class="bg-indigo-500 h-full transition-all duration-300" style="width: 0%;"></div>
                 </div>
-                <button onclick="savePlaylist()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition">
+                <div class="flex items-center justify-between pt-2">
+                    <label class="text-xs text-zinc-400">Tamamlanan Adet:</label>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeCompletedCount(-1)" class="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 font-bold text-sm text-zinc-200 flex items-center justify-center">-</button>
+                        <span id="detail-completed-count" class="font-bold text-base px-2">0</span>
+                        <span class="text-xs text-zinc-500">/ <span id="detail-total-count">6</span></span>
+                        <button onclick="changeCompletedCount(1)" class="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-bold text-sm text-white flex items-center justify-center">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gün Ekle / Düzenle -->
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-zinc-400">Görevin Bulunduğu Günler</label>
+                <div class="grid grid-cols-4 gap-1.5 text-xs" id="detail-days-grid">
+                    <!-- JS ile Günler İşaretli Gelecek -->
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="deleteCurrentTask()" class="flex-1 py-3 bg-red-950/50 hover:bg-red-900/50 text-red-400 border border-red-800/50 font-bold rounded-xl transition text-center text-xs">
+                    Görevi Sil
+                </button>
+                <button onclick="saveTaskDetails()" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition text-center text-xs shadow-lg shadow-indigo-600/20">
                     Kaydet
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL 3: PLAYLIST EKLE -->
+    <div id="modal-playlist" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                <h3 class="text-lg font-bold">Yeni Oynatma Listesi Ekle</h3>
+                <button onclick="closePlaylistModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1">Oynatma Listesi Başlığı</label>
+                    <input type="text" id="pl-title" placeholder="Örn: Eyüp B. Geometri VDK" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1">YouTube Playlist ID / Linki</label>
+                    <input type="text" id="pl-url" placeholder="list=PLto0Y-Oz3y1of5PHEoL9WTJaGaoi4CyCW" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="savePlaylist()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl transition shadow-lg shadow-indigo-600/20">
+                    Oynatma Listesini Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // VERİ YAPILARI & STATE
-        let playlists = JSON.parse(localStorage.getItem('yks_playlists')) || [
+        // VERİ YAPISI
+        let playlists = JSON.parse(localStorage.getItem('yks_playlists_v2')) || [
             {
                 id: 'pl1',
-                title: 'Kartezyen Çarpım & Kümeler',
+                title: 'Kartezyen Çarpım & Kümeler (9 Video)',
                 embedUrl: 'https://www.youtube.com/embed/videoseries?list=PLto0Y-Oz3y1of5PHEoL9WTJaGaoi4CyCW',
                 videos: [
-                    { id: 'v1', title: 'Ders 114 - Kümeler Kartezyen Çarpım', duration: '25 dk', completed: false },
-                    { id: 'v2', title: 'Ders 115 - Kartezyen Çarpım Grafikleri', duration: '20 dk', completed: false },
-                    { id: 'v3', title: 'Ders 116 - Kümeler Beceri Temelli Sorular', duration: '35 dk', completed: false }
+                    { id: 'v1', title: 'Ders 114 - Kümeler Kartezyen Çarpım Temel Kavramlar', duration: '25 dk', completed: true },
+                    { id: 'v2', title: 'Ders 115 - Kartezyen Çarpım Grafikleri ve Özellikler', duration: '22 dk', completed: false },
+                    { id: 'v3', title: 'Ders 116 - Kümeler Beceri Temelli Sorular Part 1', duration: '30 dk', completed: false },
+                    { id: 'v4', title: 'Ders 117 - Kümeler Beceri Temelli Sorular Part 2', duration: '28 dk', completed: false },
+                    { id: 'v5', title: 'Ders 118 - Birebir Soru Çözümü - Kümeler', duration: '35 dk', completed: false },
+                    { id: 'v6', title: 'Ders 119 - Kartezyen Çarpım Küme İlişkisi', duration: '20 dk', completed: false },
+                    { id: 'v7', title: 'Ders 120 - ÖSYM Tipi Kartezyen Çarpım Soruları', duration: '27 dk', completed: false },
+                    { id: 'v8', title: 'Ders 121 - Zirve Sorular & Taktikler', duration: '32 dk', completed: false },
+                    { id: 'v9', title: 'Ders 122 - Genel Kümeler & Kartezyen Tekrarı', duration: '40 dk', completed: false }
                 ]
             },
             {
@@ -304,18 +357,33 @@
                 title: 'Geometri - Üçgenler ve Açılar',
                 embedUrl: 'https://www.youtube.com/embed/videoseries?list=PLto0Y-Oz3y1of5PHEoL9WTJaGaoi4CyCW',
                 videos: [
-                    { id: 'v4', title: '1. Video: Doğruda Açılar', duration: '30 dk', completed: true },
-                    { id: 'v5', title: '2. Video: Üçgende Açılar', duration: '28 dk', completed: false }
+                    { id: 'v10', title: '1. Video: Doğruda Açılar - Temel Kurallar', duration: '30 dk', completed: true },
+                    { id: 'v11', title: '2. Video: Üçgende Açılar - Açı Kenar Bağıntıları', duration: '28 dk', completed: false },
+                    { id: 'v12', title: '3. Video: Özel Üçgenler (30-60-90 & 45-45-90)', duration: '35 dk', completed: false }
                 ]
             }
         ];
 
-        let program = JSON.parse(localStorage.getItem('yks_program')) || {
-            Pazartesi: [], Salı: [], Çarşamba: [], Perşembe: [], Cuma: [], Cumartesi: [], Pazar: []
-        };
+        let programTasks = JSON.parse(localStorage.getItem('yks_program_tasks_v2')) || [
+            {
+                id: 'task_1',
+                alan: 'TYT',
+                ders: 'Matematik',
+                konu: 'Kartezyen Çarpım Soru Bankası',
+                yontem: 'Soru Bankası Çözümü',
+                totalCount: 6,
+                completedCount: 2,
+                sure: 25,
+                days: ['Pazartesi', 'Salı', 'Çarşamba']
+            }
+        ];
 
         let activePlaylistIndex = 0;
         let activeVideoIndex = 0;
+        let selectedTaskIdForDetail = null;
+        let draggedTaskId = null;
+
+        const daysList = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
 
         // SEKMELER
         function switchTab(tab) {
@@ -389,18 +457,18 @@
                 document.getElementById('active-video-title').textContent = vid.title;
                 const btn = document.getElementById('btn-toggle-active-complete');
                 if (vid.completed) {
-                    btn.className = "px-4 py-2 bg-emerald-600 text-white font-medium text-sm rounded-xl transition flex items-center gap-2";
+                    btn.className = "px-4 py-2.5 bg-emerald-600 text-white font-semibold text-sm rounded-xl transition flex items-center gap-2 shrink-0";
                     btn.innerHTML = `<i class="fa-solid fa-check"></i> <span>Tamamlandı</span>`;
                 } else {
-                    btn.className = "px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-800/50 font-medium text-sm rounded-xl transition flex items-center gap-2";
-                    btn.innerHTML = `<i class="fa-regular fa-circle"></i> <span>İzlendi İşaretle</span>`;
+                    btn.className = "px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-800/50 font-semibold text-sm rounded-xl transition flex items-center gap-2 shrink-0";
+                    btn.innerHTML = `<i class="fa-regular fa-circle"></i> <span>İzlendi Olarak İşaretle</span>`;
                 }
             }
         }
 
         function toggleVideoComplete(plIdx, vIdx) {
             playlists[plIdx].videos[vIdx].completed = !playlists[plIdx].videos[vIdx].completed;
-            localStorage.setItem('yks_playlists', JSON.stringify(playlists));
+            localStorage.setItem('yks_playlists_v2', JSON.stringify(playlists));
             renderPlaylists();
         }
 
@@ -408,52 +476,146 @@
             toggleVideoComplete(activePlaylistIndex, activeVideoIndex);
         }
 
-        // PROGRAM RENDER
-        const daysList = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-
+        // PROGRAM RENDER & DRAG-AND-DROP
         function renderProgram() {
             const grid = document.getElementById('week-days-grid');
             grid.innerHTML = '';
 
             daysList.forEach(day => {
-                const tasks = program[day] || [];
+                const dayTasks = programTasks.filter(t => t.days.includes(day));
                 const dayEl = document.createElement('div');
-                dayEl.className = "bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col min-h-[300px]";
+                dayEl.className = "bg-zinc-900 border border-zinc-800 rounded-2xl p-3.5 flex flex-col min-h-[320px] transition";
+                dayEl.dataset.day = day;
+
+                // Drag Events
+                dayEl.ondragover = (e) => { e.preventDefault(); dayEl.classList.add('drag-over'); };
+                dayEl.ondragleave = () => { dayEl.classList.remove('drag-over'); };
+                dayEl.ondrop = (e) => {
+                    e.preventDefault();
+                    dayEl.classList.remove('drag-over');
+                    if (draggedTaskId) {
+                        moveTaskToDay(draggedTaskId, day);
+                    }
+                };
 
                 let tasksHtml = '';
-                tasks.forEach((t, tIdx) => {
+                dayTasks.forEach(task => {
+                    const percent = Math.round((task.completedCount / task.totalCount) * 100);
                     tasksHtml += `
-                        <div class="p-3 bg-zinc-950 border border-zinc-800/80 rounded-xl space-y-1 text-xs">
+                        <div draggable="true" ondragstart="draggedTaskId = '${task.id}'" onclick="openTaskDetailModal('${task.id}')" class="p-3 bg-zinc-950 border border-zinc-800/80 hover:border-indigo-500/50 rounded-xl space-y-2 cursor-pointer transition shadow-sm group">
                             <div class="flex justify-between items-start">
-                                <span class="px-2 py-0.5 text-[10px] bg-indigo-950 text-indigo-400 font-bold rounded">${t.alan} - ${t.ders}</span>
-                                <button onclick="deleteTask('${day}', ${tIdx})" class="text-zinc-500 hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
+                                <span class="px-2 py-0.5 text-[10px] bg-indigo-950 text-indigo-400 font-bold rounded border border-indigo-900/50">${task.alan} - ${task.ders}</span>
+                                <span class="text-[10px] font-bold text-zinc-400">${percent}%</span>
                             </div>
-                            <p class="font-bold text-zinc-200 mt-1">${t.konu}</p>
-                            <p class="text-zinc-400 text-[11px]"><i class="fa-solid fa-gear text-indigo-400 mr-1"></i> ${t.yontem} (${t.sayi} Adet - ${t.sure} dk)</p>
+                            <p class="font-bold text-zinc-200 text-xs truncate group-hover:text-indigo-300 transition">${task.konu}</p>
+                            
+                            <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                                <div class="bg-indigo-500 h-full transition-all duration-300" style="width: ${percent}%;"></div>
+                            </div>
+
+                            <div class="flex justify-between items-center text-[10px] text-zinc-400 pt-0.5">
+                                <span><i class="fa-solid fa-clock text-indigo-400 mr-1"></i>${task.sure} dk</span>
+                                <span>${task.completedCount}/${task.totalCount} Adet</span>
+                            </div>
                         </div>
                     `;
                 });
 
                 dayEl.innerHTML = `
                     <div class="flex justify-between items-center border-b border-zinc-800 pb-2 mb-3">
-                        <h4 class="font-bold text-sm text-zinc-200">${day}</h4>
-                        <span class="text-[10px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">${tasks.length} Görev</span>
+                        <h4 class="font-bold text-xs text-zinc-200">${day}</h4>
+                        <span class="text-[10px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full font-semibold">${dayTasks.length} Görev</span>
                     </div>
                     <div class="space-y-2 flex-1">
-                        ${tasksHtml || '<p class="text-xs text-zinc-600 text-center py-8">Görev yok</p>'}
+                        ${tasksHtml || '<p class="text-[11px] text-zinc-600 text-center py-10 font-medium">Sürükle veya Ekle</p>'}
                     </div>
                 `;
                 grid.appendChild(dayEl);
             });
         }
 
-        function deleteTask(day, tIdx) {
-            program[day].splice(tIdx, 1);
-            localStorage.setItem('yks_program', JSON.stringify(program));
-            renderProgram();
+        function moveTaskToDay(taskId, targetDay) {
+            const task = programTasks.find(t => t.id === taskId);
+            if (task && !task.days.includes(targetDay)) {
+                task.days.push(targetDay);
+                localStorage.setItem('yks_program_tasks_v2', JSON.stringify(programTasks));
+                renderProgram();
+            }
         }
 
-        // MODAL FONKSİYONLARI
+        // DETAY & İLERLEME MODAL
+        function openTaskDetailModal(taskId) {
+            selectedTaskIdForDetail = taskId;
+            const task = programTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById('detail-task-tag').textContent = `${task.alan} - ${task.ders}`;
+            document.getElementById('detail-task-title').textContent = task.konu;
+            document.getElementById('detail-task-sub').textContent = task.yontem;
+            document.getElementById('detail-completed-count').textContent = task.completedCount;
+            document.getElementById('detail-total-count').textContent = task.totalCount;
+
+            updateDetailProgressUI(task);
+
+            // Günler Grid
+            const daysGrid = document.getElementById('detail-days-grid');
+            daysGrid.innerHTML = '';
+            daysList.forEach(day => {
+                const isChecked = task.days.includes(day);
+                daysGrid.innerHTML += `
+                    <label class="flex items-center gap-1.5 bg-zinc-950 p-2 rounded border border-zinc-800 cursor-pointer">
+                        <input type="checkbox" value="${day}" ${isChecked ? 'checked' : ''} name="detail-day-cb" class="accent-indigo-600">
+                        <span>${day}</span>
+                    </label>
+                `;
+            });
+
+            document.getElementById('modal-task-detail').classList.remove('hidden');
+        }
+
+        function closeTaskDetailModal() {
+            document.getElementById('modal-task-detail').classList.add('hidden');
+        }
+
+        function changeCompletedCount(delta) {
+            const task = programTasks.find(t => t.id === selectedTaskIdForDetail);
+            if (!task) return;
+
+            task.completedCount = Math.max(0, Math.min(task.totalCount, task.completedCount + delta));
+            document.getElementById('detail-completed-count').textContent = task.completedCount;
+            updateDetailProgressUI(task);
+        }
+
+        function updateDetailProgressUI(task) {
+            const percent = Math.round((task.completedCount / task.totalCount) * 100);
+            document.getElementById('detail-progress-percent').textContent = `${percent}%`;
+            document.getElementById('detail-progress-bar').style.width = `${percent}%`;
+        }
+
+        function saveTaskDetails() {
+            const task = programTasks.find(t => t.id === selectedTaskIdForDetail);
+            if (!task) return;
+
+            const selectedDays = Array.from(document.querySelectorAll('input[name="detail-day-cb"]:checked')).map(cb => cb.value);
+            if (selectedDays.length === 0) {
+                alert('Görev en az bir günde yer almalıdır!');
+                return;
+            }
+
+            task.days = selectedDays;
+            localStorage.setItem('yks_program_tasks_v2', JSON.stringify(programTasks));
+            renderProgram();
+            closeTaskDetailModal();
+        }
+
+        function deleteCurrentTask() {
+            programTasks = programTasks.filter(t => t.id !== selectedTaskIdForDetail);
+            localStorage.setItem('yks_program_tasks_v2', JSON.stringify(programTasks));
+            renderProgram();
+            closeTaskDetailModal();
+        }
+
+        // PROGRAMA DERS EKLEME MODAL
         function openProgramModal() {
             document.getElementById('modal-program').classList.remove('hidden');
             loadPlaylistOptionsForModal();
@@ -508,32 +670,37 @@
             const ders = document.getElementById('prog-ders').value;
             let konu = document.getElementById('prog-konu').value || 'Genel Çalışma';
             const yontemVal = document.getElementById('prog-yontem').value;
-            const sayi = document.getElementById('prog-sayi').value;
-            const sure = document.getElementById('prog-sure').value;
+            const sayi = parseInt(document.getElementById('prog-sayi').value) || 1;
+            const sure = parseInt(document.getElementById('prog-sure').value) || 25;
 
-            // Seçilen günleri al
             const selectedDays = Array.from(document.querySelectorAll('input[name="prog-gun"]:checked')).map(cb => cb.value);
             if (selectedDays.length === 0) {
                 alert('Lütfen en az bir gün seçin!');
                 return;
             }
 
-            // Eğer yöntem video ise seçilen videoları konuya ekleyelim
             if (yontemVal === 'video') {
                 const selVids = Array.from(document.querySelectorAll('input[name="prog-selected-video"]:checked')).map(cb => cb.value);
                 if (selVids.length > 0) {
-                    konu += ` (${selVids.join(', ')})`;
+                    konu += ` (${selVids.length} Video)`;
                 }
             }
 
-            const yontemText = { video: 'Video İzleme', soru: 'Soru Bankası', deneme: 'Deneme Çözümü', tekrar: 'Konu Tekrarı' }[yontemVal];
+            const yontemText = { video: 'Video İzleme', soru: 'Soru Bankası Çözümü', deneme: 'Deneme Çözümü', tekrar: 'Konu Tekrarı' }[yontemVal];
 
-            selectedDays.forEach(day => {
-                if (!program[day]) program[day] = [];
-                program[day].push({ alan, ders, konu, yontem: yontemText, sayi, sure });
+            programTasks.push({
+                id: 'task_' + Date.now(),
+                alan,
+                ders,
+                konu,
+                yontem: yontemText,
+                totalCount: sayi,
+                completedCount: 0,
+                sure,
+                days: selectedDays
             });
 
-            localStorage.setItem('yks_program', JSON.stringify(program));
+            localStorage.setItem('yks_program_tasks_v2', JSON.stringify(programTasks));
             renderProgram();
             closeProgramModal();
         }
@@ -543,16 +710,21 @@
             const url = document.getElementById('pl-url').value;
             if (!title) return;
 
+            // Çoklu örnek video yapısı
             playlists.push({
                 id: 'pl_' + Date.now(),
                 title,
                 embedUrl: 'https://www.youtube.com/embed/videoseries?list=' + url,
                 videos: [
-                    { id: 'v_1', title: '1. Ders / Video', duration: '30 dk', completed: false }
+                    { id: 'v1', title: '1. Ders / Video - Giriş', duration: '25 dk', completed: false },
+                    { id: 'v2', title: '2. Ders / Video - Konu Anlatımı', duration: '30 dk', completed: false },
+                    { id: 'v3', title: '3. Ders / Video - Örnek Sorular', duration: '20 dk', completed: false },
+                    { id: 'v4', title: '4. Ders / Video - Yeni Nesil Sorular', duration: '35 dk', completed: false },
+                    { id: 'v5', title: '5. Ders / Video - Zirve Sorular', duration: '40 dk', completed: false }
                 ]
             });
 
-            localStorage.setItem('yks_playlists', JSON.stringify(playlists));
+            localStorage.setItem('yks_playlists_v2', JSON.stringify(playlists));
             renderPlaylists();
             closePlaylistModal();
         }
@@ -575,7 +747,7 @@
             document.getElementById('btn-timer-start').disabled = true;
             document.getElementById('btn-timer-pause').disabled = false;
             document.getElementById('sidebar-status-badge').textContent = 'Çalışıyor...';
-            document.getElementById('sidebar-status-badge').className = "inline-block px-2 py-0.5 text-[10px] bg-emerald-950 text-emerald-400 rounded-full";
+            document.getElementById('sidebar-status-badge').className = "inline-block px-2.5 py-0.5 text-[10px] font-semibold bg-emerald-950 text-emerald-400 rounded-full";
         }
 
         function pauseTimer() {
@@ -584,7 +756,7 @@
             document.getElementById('btn-timer-start').disabled = false;
             document.getElementById('btn-timer-pause').disabled = true;
             document.getElementById('sidebar-status-badge').textContent = 'Duraklatıldı';
-            document.getElementById('sidebar-status-badge').className = "inline-block px-2 py-0.5 text-[10px] bg-amber-950 text-amber-400 rounded-full";
+            document.getElementById('sidebar-status-badge').className = "inline-block px-2.5 py-0.5 text-[10px] font-semibold bg-amber-950 text-amber-400 rounded-full";
         }
 
         function resetTimer() {
@@ -593,15 +765,14 @@
             document.getElementById('main-timer-disp').textContent = "00:00:00";
             document.getElementById('sidebar-timer-disp').textContent = "00:00:00";
             document.getElementById('sidebar-status-badge').textContent = 'Boşta';
-            document.getElementById('sidebar-status-badge').className = "inline-block px-2 py-0.5 text-[10px] bg-zinc-800 text-zinc-400 rounded-full";
+            document.getElementById('sidebar-status-badge').className = "inline-block px-2.5 py-0.5 text-[10px] font-semibold bg-zinc-800 text-zinc-400 rounded-full";
         }
 
-        // İLK YÜKLEME
+        // YÜKLEME
         window.onload = function() {
             renderPlaylists();
             renderProgram();
 
-            // Grafik
             const ctx = document.getElementById('netChart').getContext('2d');
             new Chart(ctx, {
                 type: 'line',
