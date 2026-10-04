@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YKS Master - Ders & Playlist Planlayıcı</title>
-    <!-- Tailwind CSS CDN -->
+    <title>YKS Master - Kişisel Ders & Net Takip Platformu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -20,445 +21,313 @@
                             700: '#4338ca',
                             900: '#312e81',
                         },
-                        accent: {
-                            pink: '#ec4899',
-                            purple: '#a855f7',
-                            cyan: '#06b6d4',
-                            emerald: '#10b981'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        darkbg: '#0f172a',
+                        darkcard: '#1e293b',
                     }
                 }
             }
         }
     </script>
-    <!-- Google Fonts & Font Awesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Net Tracking -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .glow-effect {
-            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
-        }
-        .timer-ring {
-            transition: stroke-dashoffset 0.3s ease;
-        }
-        /* Custom Scrollbars */
+        /* Custom scrollbar styling */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
+            background: #0f172a;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.3);
+            background: #334155;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(99, 102, 241, 0.6);
+            background: #475569;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-brand-500 selection:text-white">
+<body class="bg-darkbg text-slate-100 min-h-screen flex flex-col antialiased">
 
-    <!-- TOP NAVIGATION -->
-    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-accent-purple to-accent-pink flex items-center justify-center text-white text-xl font-black shadow-lg shadow-brand-500/20">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-brand-500">YKS Master Pro</h1>
-                    <p class="text-xs text-slate-400 font-medium">Başarı Yolu Yol Arkadaşın ✨</p>
-                </div>
-            </div>
-
-            <!-- Tab Buttons -->
-            <nav class="flex items-center gap-1 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800/80 overflow-x-auto max-w-full">
-                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-200 bg-brand-600 text-white shadow-md">
-                    <i class="fa-solid fa-stopwatch"></i>
-                    <span>Çalışma & Sayaç</span>
-                </button>
-                <button onclick="switchTab('youtube')" id="tab-youtube" class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800">
-                    <i class="fa-brands fa-youtube text-red-500"></i>
-                    <span>YouTube & Konular</span>
-                </button>
-                <button onclick="switchTab('planner')" id="tab-planner" class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800">
-                    <i class="fa-solid fa-calendar-week"></i>
-                    <span>Haftalık Program</span>
-                </button>
-                <button onclick="switchTab('nettracker')" id="tab-nettracker" class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Net Takip</span>
-                </button>
-            </nav>
-
-            <!-- Quick Stats Header Badge -->
-            <div class="hidden lg:flex items-center gap-3">
-                <div class="px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center gap-2 text-xs">
-                    <i class="fa-solid fa-fire text-amber-500"></i>
-                    <span class="text-slate-400">Seri:</span>
-                    <span id="header-streak" class="font-bold text-white">1 Gün</span>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
-
-        <!-- ================= TAB 1: DASHBOARD & TIMER ================= -->
-        <section id="view-dashboard" class="tab-view space-y-6">
-            <!-- Daily Quote Banner -->
-            <div class="glass-panel p-4 sm:p-6 rounded-3xl bg-gradient-to-r from-brand-900/40 via-purple-900/20 to-slate-900 relative overflow-hidden border-brand-500/20">
-                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div class="space-y-1 text-center md:text-left">
-                        <span class="text-xs uppercase tracking-widest font-bold text-brand-500">Günlük Motivasyon</span>
-                        <h2 id="motivational-quote" class="text-base sm:text-lg font-bold text-slate-100">"Gelecek, bugün ne yaptığına bağlıdır."</h2>
-                        <p class="text-xs text-slate-400">Hedefine ulaşmak için bugün atacağın her adım seni zirveye yaklaştırır!</p>
+    <div class="flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-darkcard/80 backdrop-blur-md border-b md:border-b-0 md:border-r border-slate-800 p-5 flex flex-col justify-between shrink-0">
+            <div>
+                <!-- App Logo -->
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="p-2.5 bg-gradient-to-tr from-brand-600 to-indigo-400 rounded-xl shadow-lg shadow-brand-500/20 text-white">
+                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
                     </div>
-                    <div class="flex items-center gap-4 bg-slate-900/60 px-4 py-2.5 rounded-2xl border border-slate-800">
-                        <div class="text-center">
-                            <span class="text-xs text-slate-400 block">Bugün Çalışılan</span>
-                            <span id="today-total-time" class="text-lg font-extrabold text-brand-500">00:00:00</span>
-                        </div>
-                        <div class="h-8 w-px bg-slate-700/60"></div>
-                        <div class="text-center">
-                            <span class="text-xs text-slate-400 block">Günlük Hedef</span>
-                            <span id="target-display" class="text-lg font-extrabold text-accent-cyan">06:00:00</span>
-                        </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight tracking-tight text-white">YKS Master</h1>
+                        <span class="text-xs text-brand-500 font-medium">Hedef YKS 2026</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="space-y-1.5">
+                    <button onclick="switchTab('videos')" id="nav-videos" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-sm font-medium bg-brand-600 text-white shadow-lg shadow-brand-600/20">
+                        <i data-lucide="youtube" class="w-5 h-5"></i>
+                        <span>Ders Videoları</span>
+                    </button>
+                    <button onclick="switchTab('timer')" id="nav-timer" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i data-lucide="timer" class="w-5 h-5"></i>
+                        <span>YPT Kronometre</span>
+                    </button>
+                    <button onclick="switchTab('schedule')" id="nav-schedule" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i data-lucide="calendar" class="w-5 h-5"></i>
+                        <span>Haftalık Program</span>
+                    </button>
+                    <button onclick="switchTab('nets')" id="nav-nets" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                        <i data-lucide="trending-up" class="w-5 h-5"></i>
+                        <span>TYT / AYT Net Takip</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- User Quick Info -->
+            <div class="mt-8 pt-6 border-t border-slate-800">
+                <div class="bg-slate-800/60 p-3 rounded-xl flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-500/20 text-brand-500 flex items-center justify-center font-bold text-sm">
+                        YKS
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-semibold text-white truncate">Çalışma Modu: Aktif</p>
+                        <p id="total-study-time-badge" class="text-[11px] text-slate-400">Toplam: 0 dk</p>
                     </div>
                 </div>
             </div>
+        </aside>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Timer Box (2 cols on large screen) -->
-                <div class="lg:col-span-2 glass-panel p-6 sm:p-8 rounded-3xl flex flex-col items-center justify-center relative overflow-hidden">
+        <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto">
+            
+            <!-- SECTION 1: YOUTUBE PLAYLIST & VIDEO PLAYER -->
+            <section id="section-videos" class="space-y-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Ders Oynatma Listeleri & Videolar</h2>
+                        <p class="text-slate-400 text-sm">Kümeler, Kartezyen Çarpım, Geometri ve Diğer YKS Konuları</p>
+                    </div>
+                    <button onclick="toggleModal('video-modal')" class="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-brand-600/20">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Yeni Video/Oynatma Listesi Ekle</span>
+                    </button>
+                </div>
+
+                <!-- Video Player Container & Topic Selector -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
-                    <!-- Mode Switcher -->
-                    <div class="flex items-center gap-2 bg-slate-900/80 p-1 rounded-2xl border border-slate-800 mb-6">
-                        <button onclick="setTimerMode('pomodoro')" id="mode-pomodoro" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-brand-600 text-white">Pomodoro (25/5)</button>
-                        <button onclick="setTimerMode('longpomodoro')" id="mode-longpomodoro" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">Derin Odak (50/10)</button>
-                        <button onclick="setTimerMode('stopwatch')" id="mode-stopwatch" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-400 hover:text-white">Açık Kronometre</button>
-                    </div>
-
-                    <!-- Subject & Task Selector -->
-                    <div class="w-full max-w-xs mb-6">
-                        <label class="block text-xs font-semibold text-slate-400 mb-2 text-center">Şu An Hangi Derse Odaklanıyorsun?</label>
-                        <select id="timer-subject-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-white focus:outline-none focus:border-brand-500">
-                            <option value="Matematik">Matematik</option>
-                            <option value="Geometri">Geometri</option>
-                            <option value="Fizik">Fizik</option>
-                            <option value="Kimya">Kimya</option>
-                            <option value="Biyoloji">Biyoloji</option>
-                            <option value="Türkçe / Edebiyat">Türkçe / Edebiyat</option>
-                            <option value="Tarih / Coğrafya">Tarih / Coğrafya</option>
-                            <option value="Felsefe / Din">Felsefe / Din</option>
-                            <option value="Genel Deneme">Genel Deneme</option>
-                        </select>
-                    </div>
-
-                    <!-- Circular Progress Timer -->
-                    <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center my-2">
-                        <svg class="w-full h-full transform -rotate-90">
-                            <circle cx="50%" cy="50%" r="42%" stroke="currentColor" stroke-width="12" class="text-slate-800" fill="transparent"/>
-                            <circle id="timer-progress-ring" cx="50%" cy="50%" r="42%" stroke="currentColor" stroke-width="12" class="text-brand-500 timer-ring" fill="transparent" stroke-dasharray="700" stroke-dashoffset="0" stroke-linecap="round"/>
-                        </svg>
-                        <div class="absolute flex flex-col items-center justify-center text-center">
-                            <span id="timer-display" class="text-4xl sm:text-5xl font-black font-mono tracking-tight text-white">25:00</span>
-                            <span id="timer-status-text" class="text-xs uppercase tracking-widest text-slate-400 font-semibold mt-2">Odaklanma Zamanı</span>
+                    <!-- Main Video Frame -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+                            <iframe id="main-player" class="w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PL_J4L5Hq1B3T8Ie5L73N_qA-_R9gA4N7f" title="YKS Ders Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                         </div>
-                    </div>
-
-                    <!-- Controls -->
-                    <div class="flex items-center gap-4 mt-8">
-                        <button onclick="toggleTimer()" id="btn-timer-start" class="w-16 h-16 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white text-2xl flex items-center justify-center shadow-lg shadow-brand-500/30 transition-all transform active:scale-95">
-                            <i class="fa-solid fa-play"></i>
-                        </button>
-                        <button onclick="resetTimer()" class="w-14 h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xl flex items-center justify-center border border-slate-700 transition-all transform active:scale-95">
-                            <i class="fa-solid fa-rotate-right"></i>
-                        </button>
-                        <button onclick="saveCurrentSessionManually()" title="Oturumu Kaydet" class="w-14 h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xl flex items-center justify-center border border-slate-700 transition-all transform active:scale-95">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Session Log & Quick Targets (1 col) -->
-                <div class="space-y-6 flex flex-col">
-                    <!-- Daily Target Setting Card -->
-                    <div class="glass-panel p-5 rounded-3xl space-y-3">
-                        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-bullseye text-brand-500"></i> Günlük Çalışma Hedefi
-                        </h3>
-                        <div class="flex items-center gap-3">
-                            <input type="number" id="input-daily-target" min="1" max="16" value="6" class="w-20 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-center font-bold text-white focus:outline-none focus:border-brand-500">
-                            <span class="text-xs text-slate-400">Saat / Gün</span>
-                            <button onclick="updateDailyTarget()" class="ml-auto px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-xl transition-all">Güncelle</button>
-                        </div>
-                        <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden mt-2">
-                            <div id="target-progress-bar" class="bg-gradient-to-r from-brand-500 to-accent-cyan h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Session History List -->
-                    <div class="glass-panel p-5 rounded-3xl flex-1 flex flex-col">
-                        <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center justify-between">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-accent-purple"></i> Bugünkü Çalışma Kayıtları</span>
-                            <span id="session-count-badge" class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0 Oturum</span>
-                        </h3>
-                        <div id="session-log-list" class="space-y-2.5 overflow-y-auto max-h-64 pr-1 flex-1">
-                            <div class="text-center py-8 text-xs text-slate-500">
-                                Henüz çalışma kaydı bulunmuyor. Sayacı başlatıp çalışmaya başla!
+                        <div class="bg-darkcard p-5 rounded-2xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <span id="current-topic-badge" class="text-xs px-2.5 py-1 bg-brand-500/20 text-brand-400 rounded-md font-semibold">Matematik - Kümeler</span>
+                                <h3 id="current-video-title" class="text-lg font-bold text-white mt-1">Kümeler Konu Anlatımı & Soru Çözümü</h3>
+                            </div>
+                            <div class="flex items-center space-x-2 shrink-0">
+                                <button onclick="shareCurrentVideo()" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition" title="Bağlantıyı Kopyala">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="markVideoComplete()" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 rounded-xl text-sm font-medium transition flex items-center space-x-2">
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                    <span>Tamamlandı İşaretle</span>
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- ================= TAB 2: YOUTUBE & SUBJECT ORGANIZER ================= -->
-        <section id="view-youtube" class="tab-view space-y-6 hidden">
-            <!-- Playlist Importer Box -->
-            <div class="glass-panel p-6 rounded-3xl space-y-4">
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i class="fa-brands fa-youtube text-red-500 text-2xl"></i> YouTube Oynatma Listesi & Konu Düzenleyici
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">
-                            Eyüp B. veya dilediğin hocanın ders playlist URL/ID'sini ekle, konularına ayır ve adım adım bitir!
-                        </p>
-                    </div>
-                    <!-- Quick Preset Selectors -->
-                    <div class="flex items-center gap-2">
-                        <button onclick="loadPresetPlaylist('eyupb_geometri')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-semibold border border-slate-700 flex items-center gap-1.5 transition-all">
-                            <i class="fa-solid fa-shapes text-amber-400"></i> Eyüp B. Geometri (Örnek)
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row items-center gap-3">
-                    <div class="relative flex-1 w-full">
-                        <i class="fa-solid fa-link absolute left-4 top-3.5 text-slate-500 text-sm"></i>
-                        <input type="text" id="input-playlist-url" placeholder="YouTube Oynatma Listesi Linki veya ID yapıştırın (örn: PLfL-HD-UxFsoMtm8k6XnszjSlVgzRCzKM)" class="w-full bg-slate-900 border border-slate-700 rounded-2xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
-                    </div>
-                    <button onclick="importPlaylist()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20 transition-all whitespace-nowrap">
-                        <i class="fa-solid fa-cloud-arrow-down"></i> Listeyi İçeri Aktar
-                    </button>
-                </div>
-            </div>
-
-            <!-- YouTube Video Player Modal/Section -->
-            <div id="player-container" class="glass-panel p-4 rounded-3xl hidden space-y-3 border-brand-500/30">
-                <div class="flex items-center justify-between">
-                    <h3 id="current-playing-title" class="text-sm font-bold text-slate-200 line-clamp-1">Şu An İzlenen Ders Video</h3>
-                    <button onclick="closeVideoPlayer()" class="text-slate-400 hover:text-white text-sm bg-slate-800 px-3 py-1 rounded-lg">Kapat <i class="fa-solid fa-xmark ml-1"></i></button>
-                </div>
-                <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-2xl">
-                    <iframe id="youtube-iframe" class="w-full h-full" src="" title="YouTube Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-            </div>
-
-            <!-- Playlist & Video Organizer View -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Left: Saved Playlists Sidebar -->
-                <div class="glass-panel p-5 rounded-3xl space-y-4 lg:col-span-1">
-                    <h3 class="text-sm font-bold text-slate-200 flex items-center justify-between">
-                        <span><i class="fa-solid fa-list-ul text-brand-500 mr-2"></i> Ekli Listelerim</span>
-                        <span id="playlist-count-tag" class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">0</span>
-                    </h3>
-                    <div id="playlists-menu" class="space-y-2 max-h-96 overflow-y-auto pr-1">
-                        <!-- Playlists rendered dynamically -->
-                    </div>
-                </div>
-
-                <!-- Right: Active Playlist Videos & Topic Grouping -->
-                <div class="glass-panel p-5 sm:p-6 rounded-3xl lg:col-span-3 space-y-6">
-                    <div id="active-playlist-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                        <div>
-                            <h3 id="active-playlist-title" class="text-lg font-bold text-white">Bir Oynatma Listesi Seçin</h3>
-                            <p id="active-playlist-stats" class="text-xs text-slate-400">Toplam 0 video • 0 tamamlandı (%0)</p>
+                    <!-- Topic List / Playlist Sidebar -->
+                    <div class="bg-darkcard p-5 rounded-2xl border border-slate-800 flex flex-col h-[520px]">
+                        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+                            <h3 class="font-bold text-white flex items-center space-x-2">
+                                <i data-lucide="list-video" class="w-5 h-5 text-brand-500"></i>
+                                <span>Kayıtlı Ders Listeleri</span>
+                            </h3>
+                            <span id="topic-count" class="text-xs text-slate-400 bg-slate-800 px-2 py-1 rounded-md">3 Liste</span>
                         </div>
-                        <!-- Subject Tag Filter -->
-                        <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <select id="filter-topic-select" onchange="filterVideosByTopic()" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-500">
-                                <option value="ALL">Tüm Konular</option>
+
+                        <!-- Scrollable Video List -->
+                        <div id="video-list" class="space-y-3 overflow-y-auto flex-1 pr-1">
+                            <!-- Items populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: YPT CHRONOMETER / POMODORO -->
+            <section id="section-timer" class="space-y-6 hidden">
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold text-white tracking-tight">YPT Odaklanma Kronometresi</h2>
+                        <p class="text-slate-400 text-sm">Süreç bazlı çalışma takibi yapın, veriminizi artırın</p>
+                    </div>
+
+                    <div class="bg-darkcard border border-slate-800 p-8 rounded-3xl shadow-2xl text-center relative overflow-hidden">
+                        <!-- Mode Selector -->
+                        <div class="flex justify-center bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 w-max mx-auto mb-8">
+                            <button id="mode-stopwatch" onclick="setTimerMode('stopwatch')" class="px-5 py-2 rounded-xl text-sm font-semibold transition bg-brand-600 text-white shadow">Kronometre</button>
+                            <button id="mode-pomodoro" onclick="setTimerMode('pomodoro')" class="px-5 py-2 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white">Pomodoro (25 Dk)</button>
+                        </div>
+
+                        <!-- Timer Circular Display -->
+                        <div class="relative w-64 h-64 mx-auto my-6 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="128" cy="128" r="110" stroke="currentColor" stroke-width="12" class="text-slate-800" fill="transparent"/>
+                                <circle id="timer-progress-circle" cx="128" cy="128" r="110" stroke="currentColor" stroke-width="12" class="text-brand-500 transition-all duration-300" stroke-linecap="round" fill="transparent" stroke-dasharray="691" stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="absolute flex flex-col items-center justify-center">
+                                <span id="timer-display" class="text-5xl font-black text-white tracking-widest font-mono">00:00:00</span>
+                                <span id="timer-label" class="text-xs text-brand-400 uppercase tracking-widest mt-2 font-semibold">Ders Çalışma</span>
+                            </div>
+                        </div>
+
+                        <!-- Category Selector -->
+                        <div class="mb-8 max-w-xs mx-auto">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Çalışılan Ders</label>
+                            <select id="timer-subject-select" class="w-full bg-slate-900 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-brand-500 outline-none">
+                                <option value="Matematik">Matematik</option>
+                                <option value="Geometri">Geometri</option>
+                                <option value="Fizik">Fizik</option>
+                                <option value="Kimya">Kimya</option>
+                                <option value="Biyoloji">Biyoloji</option>
+                                <option value="Türkçe / Edebiyat">Türkçe / Edebiyat</option>
+                                <option value="Tarih / Coğrafya">Tarih / Coğrafya</option>
                             </select>
-                            <button onclick="promptNewTopicTag()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-brand-400 font-semibold border border-slate-700 whitespace-nowrap">
-                                + Konu Etiketi Ekle
+                        </div>
+
+                        <!-- Control Buttons -->
+                        <div class="flex items-center justify-center space-x-4">
+                            <button id="timer-start-btn" onclick="toggleTimer()" class="w-16 h-16 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-brand-600/30 transition transform active:scale-95">
+                                <i id="timer-start-icon" data-lucide="play" class="w-7 h-7 fill-white ml-0.5"></i>
+                            </button>
+                            <button onclick="resetTimer()" class="w-12 h-12 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-2xl flex items-center justify-center transition">
+                                <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Progress Bar for Playlist -->
-                    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                        <div id="playlist-progress-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-
-                    <!-- Video List Render Container -->
-                    <div id="video-items-list" class="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                        <div class="text-center py-16 text-slate-500 text-sm">
-                            Henüz liste seçilmedi. Yarıda kalmamak için yukarıdan bir playlist ekleyebilir veya örnek Geometri listesini yükleyebilirsiniz!
+                    <!-- Today's Log -->
+                    <div class="bg-darkcard p-6 rounded-2xl border border-slate-800">
+                        <h3 class="font-bold text-white mb-4 flex items-center space-x-2">
+                            <i data-lucide="clock" class="w-5 h-5 text-brand-500"></i>
+                            <span>Bugünkü Oturum Kayıtları</span>
+                        </h3>
+                        <div id="session-log" class="space-y-2 text-sm text-slate-400">
+                            <!-- Populated dynamically -->
+                            <p class="text-center py-4 text-xs text-slate-500">Henüz kaydedilmiş oturum yok.</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ================= TAB 3: WEEKLY STUDY PROGRAM PLANNER ================= -->
-        <section id="view-planner" class="tab-view space-y-6 hidden">
-            <div class="glass-panel p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-week text-accent-purple text-2xl"></i> Haftalık Ders Programı
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Pazartesi'den Pazar'a gün gün derslerini, deneme çözümlerini ve tekrarlarını planla!</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="openAddTaskModal()" class="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-brand-500/20 transition-all">
-                        <i class="fa-solid fa-plus"></i> Program Programına Ders Ekle
+            <!-- SECTION 3: WEEKLY SCHEDULE BUILDER -->
+            <section id="section-schedule" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Haftalık Ders Çalışma Programı</h2>
+                        <p class="text-slate-400 text-sm">Pazartesi'den Pazar'a haftalık hedeflerinizi organize edin</p>
+                    </div>
+                    <button onclick="toggleModal('schedule-modal')" class="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-brand-600/20">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Programa Ders Ekle</span>
                     </button>
                 </div>
-            </div>
 
-            <!-- 7 Days Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
-                <!-- Day Columns will be generated by JS -->
-                <div id="day-col-Pazartesi" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px]">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-slate-200">Pazartesi</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">1. Gün</span>
+                <!-- Days Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4" id="weekly-grid">
+                    <!-- Pazartesi to Pazar dynamic cards -->
+                </div>
+            </section>
+
+            <!-- SECTION 4: TYT/AYT NET TRACKER -->
+            <section id="section-nets" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">TYT / AYT Deneme & Net Takibi</h2>
+                        <p class="text-slate-400 text-sm">Gelişiminizi grafikle takip edin, eksiklerinizi tespit edin</p>
                     </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Pazartesi"></div>
+                    <button onclick="toggleModal('net-modal')" class="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition shadow-lg shadow-brand-600/20">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Yeni Deneme Sonucu Ekle</span>
+                    </button>
                 </div>
 
-                <div id="day-col-Salı" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px]">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-slate-200">Salı</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">2. Gün</span>
-                    </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Salı"></div>
-                </div>
-
-                <div id="day-col-Çarşamba" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px]">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-slate-200">Çarşamba</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">3. Gün</span>
-                    </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Çarşamba"></div>
-                </div>
-
-                <div id="day-col-Perşembe" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px]">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-slate-200">Perşembe</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">4. Gün</span>
-                    </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Perşembe"></div>
-                </div>
-
-                <div id="day-col-Cuma" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px]">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-slate-200">Cuma</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">5. Gün</span>
-                    </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Cuma"></div>
-                </div>
-
-                <div id="day-col-Cumartesi" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px] bg-slate-900/40">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-amber-400">Cumartesi</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">Hafta Sonu</span>
-                    </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Cumartesi"></div>
-                </div>
-
-                <div id="day-col-Pazar" class="glass-panel p-4 rounded-2xl flex flex-col gap-3 min-h-[350px] bg-slate-900/40">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                        <span class="font-bold text-sm text-amber-400">Pazar</span>
-                        <span class="text-[10px] font-semibold text-slate-500 uppercase">Hafta Sonu</span>
-                    </div>
-                    <div class="day-tasks space-y-2 flex-1 overflow-y-auto" id="tasks-Pazar"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= TAB 4: TRIAL EXAM TRACKER (NET TAKİP) ================= -->
-        <section id="view-nettracker" class="tab-view space-y-6 hidden">
-            <div class="glass-panel p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-chart-column text-accent-cyan text-2xl"></i> TYT & AYT Deneme Net Takibi
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-1">Çözdüğün denemelerin sonuçlarını kaydet, netlerinin yükselişini grafikle izle!</p>
-                </div>
-                <button onclick="openNetModal()" class="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-brand-500/20 transition-all">
-                    <i class="fa-solid fa-plus"></i> Yeni Deneme Sonucu Ekle
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Chart Area (2 cols) -->
-                <div class="lg:col-span-2 glass-panel p-6 rounded-3xl space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-200">Gelişim Grafiği</h3>
-                        <div class="flex gap-2">
-                            <button onclick="switchChartType('TYT')" id="btn-chart-tyt" class="px-3 py-1 rounded-xl text-xs font-semibold bg-brand-600 text-white">TYT</button>
-                            <button onclick="switchChartType('AYT')" id="btn-chart-ayt" class="px-3 py-1 rounded-xl text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white">AYT</button>
-                        </div>
-                    </div>
-                    <div class="w-full h-72">
+                <!-- Net Chart Container -->
+                <div class="bg-darkcard p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <h3 class="font-bold text-white flex items-center space-x-2">
+                        <i data-lucide="line-chart" class="w-5 h-5 text-brand-500"></i>
+                        <span>Net Gelişim Grafiği</span>
+                    </h3>
+                    <div class="h-64 sm:h-80 w-full">
                         <canvas id="netChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Trial Exam Logs (1 col) -->
-                <div class="glass-panel p-6 rounded-3xl space-y-4 flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-200 flex items-center justify-between">
-                        <span><i class="fa-solid fa-receipt text-accent-cyan mr-2"></i> Kayıtlı Denemeler</span>
-                    </h3>
-                    <div id="net-logs-container" class="space-y-3 overflow-y-auto max-h-80 pr-1 flex-1">
-                        <!-- Exam logs list -->
-                    </div>
+                <!-- Net Logs Table -->
+                <div class="bg-darkcard p-6 rounded-2xl border border-slate-800 overflow-x-auto">
+                    <h3 class="font-bold text-white mb-4">Girilen Deneme Listesi</h3>
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="text-xs uppercase bg-slate-900/60 text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">Tarih</th>
+                                <th class="p-3">Deneme Adı</th>
+                                <th class="p-3">Türü</th>
+                                <th class="p-3">Türkçe / Mat</th>
+                                <th class="p-3">Sosyal / Fen</th>
+                                <th class="p-3 text-right">Toplam Net</th>
+                                <th class="p-3 text-center">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="net-table-body" class="divide-y divide-slate-800">
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
+    </div>
 
-    </main>
-
-    <!-- MODALS SECTION -->
-    <!-- Modal: Add Schedule Task -->
-    <div id="modal-add-task" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
-        <div class="glass-panel w-full max-w-md p-6 rounded-3xl space-y-4 relative border-brand-500/30">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white">Programına Görev Ekle</h3>
-                <button onclick="closeAddTaskModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <!-- MODAL 1: ADD VIDEO / PLAYLIST -->
+    <div id="video-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-darkcard border border-slate-800 w-full max-w-md p-6 rounded-2xl space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-white text-lg">Yeni Video veya Liste Ekle</h3>
+                <button onclick="toggleModal('video-modal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="space-y-3">
+            <form id="add-video-form" onsubmit="handleAddVideo(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Konu / Ders Adı</label>
+                    <input type="text" id="input-video-topic" required placeholder="Örn: Geometri - Üçgenler" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">YouTube Linki veya Video/Playlist ID</label>
+                    <input type="text" id="input-video-url" required placeholder="https://www.youtube.com/watch?v=... veya Playlist URL" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:ring-2 focus:ring-brand-500 outline-none">
+                    <p class="text-[11px] text-slate-500 mt-1">Tekil video linki veya playlist (list=...) ekleyebilirsiniz.</p>
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Kaydet & Listeye Ekle</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: ADD SCHEDULE ITEM -->
+    <div id="schedule-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-darkcard border border-slate-800 w-full max-w-md p-6 rounded-2xl space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-white text-lg">Programa Ders Ekle</h3>
+                <button onclick="toggleModal('schedule-modal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form id="add-schedule-form" onsubmit="handleAddSchedule(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-1">Gün Seçin</label>
-                    <select id="task-day-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <select id="schedule-day-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none">
                         <option value="Pazartesi">Pazartesi</option>
                         <option value="Salı">Salı</option>
                         <option value="Çarşamba">Çarşamba</option>
@@ -469,645 +338,491 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Ders / Konu Başlığı</label>
-                    <input type="text" id="task-title-input" placeholder="Örn: Geometri - Doğruda Açılar 2 Test" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-brand-500">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Ders / Konu</label>
+                    <input type="text" id="schedule-subject-input" required placeholder="Örn: Matematik - Kümeler Test Çözümü" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">Tür</label>
-                    <select id="task-type-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                        <option value="Ders Videosu">Ders Videosu</option>
-                        <option value="Soru Çözümü">Soru Çözümü / Test</option>
-                        <option value="Tekrar">Konu Tekrarı</option>
-                        <option value="Deneme">Deneme Sınavı</option>
-                    </select>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Hedef Süre / Soru Sayısı</label>
+                    <input type="text" id="schedule-target-input" placeholder="Örn: 2 Saat veya 60 Soru" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none">
                 </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeAddTaskModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">İptal</button>
-                <button onclick="saveScheduleTask()" class="px-4 py-2 rounded-xl bg-brand-600 text-xs font-semibold text-white">Kaydet</button>
-            </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Ekle</button>
+            </form>
         </div>
     </div>
 
-    <!-- Modal: Add Trial Exam Net -->
-    <div id="modal-add-net" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
-        <div class="glass-panel w-full max-w-lg p-6 rounded-3xl space-y-4 relative border-brand-500/30">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white">Deneme Net Sonucu Ekle</h3>
-                <button onclick="closeNetModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <!-- MODAL 3: ADD NET RESULT -->
+    <div id="net-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-darkcard border border-slate-800 w-full max-w-md p-6 rounded-2xl space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-white text-lg">Deneme Net Sonucu Gir</h3>
+                <button onclick="toggleModal('net-modal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="space-y-4">
+            <form id="add-net-form" onsubmit="handleAddNet(event)" class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Sınav Türü</label>
-                        <select id="net-exam-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Deneme Türü</label>
+                        <select id="net-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm outline-none">
                             <option value="TYT">TYT</option>
                             <option value="AYT">AYT</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Deneme Adı / Yayın</label>
-                        <input type="text" id="net-exam-name" placeholder="Örn: 3D Türkiye Geneli 1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Tarih</label>
+                        <input type="date" id="net-date" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm outline-none">
                     </div>
                 </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Deneme Adı / Yayın</label>
+                    <input type="text" id="net-title" required placeholder="Örn: 3D Türkiye Geneli TYT-1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Türkçe / TDE Net</label>
-                        <input type="number" step="0.25" id="net-turkce" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-center">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Türkçe / Edebiyat Net</label>
+                        <input type="number" step="0.25" id="net-sub1" required placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm outline-none">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Matematik Net</label>
-                        <input type="number" step="0.25" id="net-matematik" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-center">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Fen Bilimleri Net</label>
-                        <input type="number" step="0.25" id="net-fen" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-center">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Sosyal Bilg. Net</label>
-                        <input type="number" step="0.25" id="net-sosyal" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white text-center">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Matematik Net</label>
+                        <input type="number" step="0.25" id="net-sub2" required placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm outline-none">
                     </div>
                 </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeNetModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300">İptal</button>
-                <button onclick="saveNetEntry()" class="px-4 py-2 rounded-xl bg-brand-600 text-xs font-semibold text-white">Kaydet ve Ekle</button>
-            </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Sosyal Net</label>
+                        <input type="number" step="0.25" id="net-sub3" required placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Fen Net</label>
+                        <input type="number" step="0.25" id="net-sub4" required placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm outline-none">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Sonucu Kaydet</button>
+            </form>
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="glass-panel border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500">
-        YKS Master Hub • Ders & Playlist Düzenleyici © 2026 • Başarılar Aşkım! ✨
-    </footer>
-
-    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-        // App State with LocalStorage fallbacks
-        let state = {
-            dailyTargetSeconds: 6 * 3600,
-            todaySeconds: 0,
-            timerMode: 'pomodoro', // pomodoro, longpomodoro, stopwatch
-            timerDuration: 25 * 60,
-            timerRemaining: 25 * 60,
-            isRunning: false,
-            timerInterval: null,
-            activeSubject: 'Matematik',
-            sessions: [],
-            playlists: [],
-            activePlaylistId: null,
-            scheduleTasks: {
-                'Pazartesi': [], 'Salı': [], 'Çarşamba': [], 'Perşembe': [], 'Cuma': [], 'Cumartesi': [], 'Pazar': []
+        // --- DEFAULT DATA & INITIALIZATION ---
+        const DEFAULT_VIDEOS = [
+            {
+                id: "video-1",
+                topic: "Kümeler & Kartezyen Çarpım",
+                embedUrl: "https://www.youtube.com/embed/videoseries?list=PL_J4L5Hq1B3T8Ie5L73N_qA-_R9gA4N7f",
+                type: "playlist",
+                completed: false
             },
-            netEntries: []
-        };
+            {
+                id: "video-2",
+                topic: "TYT Matematik - Temel Kavramlar",
+                embedUrl: "https://www.youtube.com/embed/S26B3x1iG3Q",
+                type: "video",
+                completed: false
+            },
+            {
+                id: "video-3",
+                topic: "Geometri - Üçgenler ve Açılar",
+                embedUrl: "https://www.youtube.com/embed/l5_33I0eOls",
+                type: "video",
+                completed: false
+            }
+        ];
 
+        const DAYS = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
+
+        let videos = JSON.parse(localStorage.getItem('yks_videos')) || DEFAULT_VIDEOS;
+        let schedule = JSON.parse(localStorage.getItem('yks_schedule')) || {};
+        let netLogs = JSON.parse(localStorage.getItem('yks_nets')) || [];
+        let timerLogs = JSON.parse(localStorage.getItem('yks_timer_logs')) || [];
+
+        // Application State
+        let currentVideoIndex = 0;
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let timerMode = 'stopwatch'; // 'stopwatch' or 'pomodoro'
+        let timerRunning = false;
         let chartInstance = null;
-        let currentChartType = 'TYT';
 
-        // Load data on startup
+        // Initialize Lucide Icons & App
         window.onload = function() {
-            loadStateFromStorage();
-            initQuotes();
-            renderSessions();
-            renderPlaylists();
+            lucide.createIcons();
+            renderVideoList();
             renderSchedule();
             renderNetLogs();
+            renderTimerLogs();
             initChart();
-            updateTimerDisplay();
+            updateTotalStudyBadge();
+
+            // Default date for net modal
+            document.getElementById('net-date').valueAsDate = new Date();
         };
 
-        function loadStateFromStorage() {
-            const saved = localStorage.getItem('yks_master_state');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state.dailyTargetSeconds = parsed.dailyTargetSeconds || 6 * 3600;
-                    state.todaySeconds = parsed.todaySeconds || 0;
-                    state.sessions = parsed.sessions || [];
-                    state.playlists = parsed.playlists || [];
-                    state.scheduleTasks = parsed.scheduleTasks || state.scheduleTasks;
-                    state.netEntries = parsed.netEntries || [];
-                } catch(e) {
-                    console.error("Storage parse error", e);
-                }
-            }
-
-            // If empty playlists, add sample Eyüp B. Geometry demo list
-            if (state.playlists.length === 0) {
-                state.playlists.push(getSampleEyupBPlaylist());
-            }
-            state.activePlaylistId = state.playlists[0]?.id || null;
-
-            document.getElementById('input-daily-target').value = Math.round(state.dailyTargetSeconds / 3600);
-            updateDailyProgress();
-        }
-
-        function saveState() {
-            localStorage.setItem('yks_master_state', JSON.stringify({
-                dailyTargetSeconds: state.dailyTargetSeconds,
-                todaySeconds: state.todaySeconds,
-                sessions: state.sessions,
-                playlists: state.playlists,
-                scheduleTasks: state.scheduleTasks,
-                netEntries: state.netEntries
-            }));
-        }
-
+        // --- NAVIGATION CONTROLLER ---
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
-            document.querySelectorAll('.nav-tab').forEach(btn => {
-                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-md');
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/20');
                 btn.classList.add('text-slate-400');
             });
 
-            document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-${tabId}`);
-            activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-md');
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/20');
             activeBtn.classList.remove('text-slate-400');
 
-            if (tabId === 'nettracker' && chartInstance) {
-                setTimeout(() => chartInstance.update(), 100);
+            if (tabId === 'nets') {
+                setTimeout(() => { if (chartInstance) chartInstance.update(); }, 100);
             }
         }
 
-        function setTimerMode(mode) {
-            if (state.isRunning) resetTimer();
-            state.timerMode = mode;
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
 
-            document.querySelectorAll('#mode-pomodoro, #mode-longpomodoro, #mode-stopwatch').forEach(btn => {
-                btn.classList.remove('bg-brand-600', 'text-white');
-                btn.classList.add('text-slate-400');
+        // --- YOUTUBE PLAYER CONTROLLER ---
+        function renderVideoList() {
+            const container = document.getElementById('video-list');
+            document.getElementById('topic-count').innerText = `${videos.length} Liste/Video`;
+            container.innerHTML = '';
+
+            videos.forEach((item, index) => {
+                const isActive = index === currentVideoIndex;
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl border transition cursor-pointer flex items-center justify-between ${
+                    isActive 
+                    ? 'bg-brand-600/10 border-brand-500/50 text-white' 
+                    : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                }`;
+
+                div.onclick = () => selectVideo(index);
+
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="p-2 rounded-lg ${isActive ? 'bg-brand-600 text-white' : 'bg-slate-800 text-slate-400'}">
+                            <i data-lucide="${item.type === 'playlist' ? 'library' : 'play-circle'}" class="w-4 h-4"></i>
+                        </div>
+                        <div class="truncate">
+                            <p class="text-xs font-semibold truncate ${item.completed ? 'line-through text-slate-500' : ''}">${item.topic}</p>
+                            <span class="text-[10px] text-slate-500 capitalize">${item.type}</span>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); deleteVideo(${index})" class="text-slate-500 hover:text-rose-400 p-1">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function selectVideo(index) {
+            currentVideoIndex = index;
+            const video = videos[index];
+            document.getElementById('main-player').src = video.embedUrl;
+            document.getElementById('current-topic-badge').innerText = video.topic;
+            document.getElementById('current-video-title').innerText = `${video.topic} - Ders Anlatımı`;
+            renderVideoList();
+        }
+
+        function parseYouTubeUrl(url) {
+            // Handles standard, playlist, embed or short URLs correctly
+            if (url.includes('list=')) {
+                const listId = url.split('list=')[1].split('&')[0];
+                return {
+                    url: `https://www.youtube.com/embed/videoseries?list=${listId}`,
+                    type: 'playlist'
+                };
+            } else {
+                let videoId = '';
+                if (url.includes('v=')) {
+                    videoId = url.split('v=')[1].split('&')[0];
+                } else if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                } else if (url.includes('embed/')) {
+                    videoId = url.split('embed/')[1].split('?')[0];
+                } else {
+                    videoId = url.trim();
+                }
+                return {
+                    url: `https://www.youtube.com/embed/${videoId}`,
+                    type: 'video'
+                };
+            }
+        }
+
+        function handleAddVideo(e) {
+            e.preventDefault();
+            const topic = document.getElementById('input-video-topic').value;
+            const rawUrl = document.getElementById('input-video-url').value;
+
+            const parsed = parseYouTubeUrl(rawUrl);
+
+            videos.push({
+                id: 'video-' + Date.now(),
+                topic: topic,
+                embedUrl: parsed.url,
+                type: parsed.type,
+                completed: false
             });
 
-            const activeBtn = document.getElementById(`mode-${mode}`);
-            activeBtn.classList.add('bg-brand-600', 'text-white');
-            activeBtn.classList.remove('text-slate-400');
+            localStorage.setItem('yks_videos', JSON.stringify(videos));
+            renderVideoList();
+            toggleModal('video-modal');
+            document.getElementById('add-video-form').reset();
+            selectVideo(videos.length - 1);
+        }
 
-            if (mode === 'pomodoro') {
-                state.timerDuration = 25 * 60;
-                document.getElementById('timer-status-text').innerText = "Odaklanma Zamanı (25 Dk)";
-            } else if (mode === 'longpomodoro') {
-                state.timerDuration = 50 * 60;
-                document.getElementById('timer-status-text').innerText = "Derin Odaklanma (50 Dk)";
-            } else {
-                state.timerDuration = 0; // Stopwatch mode
-                document.getElementById('timer-status-text').innerText = "Açık Kronometre Modu";
+        function deleteVideo(index) {
+            videos.splice(index, 1);
+            localStorage.setItem('yks_videos', JSON.stringify(videos));
+            if (currentVideoIndex >= videos.length) currentVideoIndex = Math.max(0, videos.length - 1);
+            renderVideoList();
+            if (videos.length > 0) selectVideo(currentVideoIndex);
+        }
+
+        function markVideoComplete() {
+            if (videos[currentVideoIndex]) {
+                videos[currentVideoIndex].completed = !videos[currentVideoIndex].completed;
+                localStorage.setItem('yks_videos', JSON.stringify(videos));
+                renderVideoList();
             }
-            state.timerRemaining = state.timerDuration;
+        }
+
+        function shareCurrentVideo() {
+            const currentUrl = videos[currentVideoIndex]?.embedUrl || '';
+            navigator.clipboard.writeText(currentUrl);
+            alert("Video/Oynatma listesi bağlantısı kopyalandı!");
+        }
+
+        // --- STREAMING_CHUNK:Writing YPT Chronometer / Timer Logic... ---
+        // --- YPT CHRONOMETER ENGINE ---
+        function setTimerMode(mode) {
+            if (timerRunning) toggleTimer();
+            timerMode = mode;
+            
+            const btnStopwatch = document.getElementById('mode-stopwatch');
+            const btnPomodoro = document.getElementById('mode-pomodoro');
+
+            if (mode === 'stopwatch') {
+                btnStopwatch.className = "px-5 py-2 rounded-xl text-sm font-semibold transition bg-brand-600 text-white shadow";
+                btnPomodoro.className = "px-5 py-2 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white";
+                timerSeconds = 0;
+            } else {
+                btnPomodoro.className = "px-5 py-2 rounded-xl text-sm font-semibold transition bg-brand-600 text-white shadow";
+                btnStopwatch.className = "px-5 py-2 rounded-xl text-sm font-semibold transition text-slate-400 hover:text-white";
+                timerSeconds = 25 * 60;
+            }
             updateTimerDisplay();
         }
 
         function toggleTimer() {
-            const btn = document.getElementById('btn-timer-start');
-            if (state.isRunning) {
+            const startIcon = document.getElementById('timer-start-icon');
+            const startBtn = document.getElementById('timer-start-btn');
+
+            if (timerRunning) {
                 // Pause
-                clearInterval(state.timerInterval);
-                state.isRunning = false;
-                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
-                btn.classList.replace('bg-amber-600', 'bg-brand-600');
+                clearInterval(timerInterval);
+                timerRunning = false;
+                startIcon.setAttribute('data-lucide', 'play');
+                startBtn.classList.remove('bg-amber-600', 'hover:bg-amber-500');
+                startBtn.classList.add('bg-brand-600', 'hover:bg-brand-500');
+                saveTimerSession();
             } else {
                 // Start
-                state.activeSubject = document.getElementById('timer-subject-select').value;
-                state.isRunning = true;
-                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-                btn.classList.replace('bg-brand-600', 'bg-amber-600');
+                timerRunning = true;
+                startIcon.setAttribute('data-lucide', 'pause');
+                startBtn.classList.remove('bg-brand-600', 'hover:bg-brand-500');
+                startBtn.classList.add('bg-amber-600', 'hover:bg-amber-500');
 
-                state.timerInterval = setInterval(() => {
-                    if (state.timerMode === 'stopwatch') {
-                        state.timerRemaining++;
-                        state.todaySeconds++;
+                timerInterval = setInterval(() => {
+                    if (timerMode === 'stopwatch') {
+                        timerSeconds++;
                     } else {
-                        if (state.timerRemaining > 0) {
-                            state.timerRemaining--;
-                            state.todaySeconds++;
+                        if (timerSeconds > 0) {
+                            timerSeconds--;
                         } else {
-                            // Completed Session
-                            clearInterval(state.timerInterval);
-                            state.isRunning = false;
-                            playCompletionSound();
-                            saveSessionRecord(state.timerDuration, state.activeSubject);
-                            resetTimer();
-                            alert("Tebrikler Aşkım! Harika bir odaklanma seansını başarıyla tamamladın! 🎉");
-                            return;
+                            clearInterval(timerInterval);
+                            timerRunning = false;
+                            alert("Pomodoro Süresi Doldu! Mola Zamanı 🎉");
+                            saveTimerSession();
                         }
                     }
                     updateTimerDisplay();
-                    updateDailyProgress();
                 }, 1000);
             }
+            lucide.createIcons();
         }
 
         function resetTimer() {
-            clearInterval(state.timerInterval);
-            state.isRunning = false;
-            const btn = document.getElementById('btn-timer-start');
-            btn.innerHTML = '<i class="fa-solid fa-play"></i>';
-            btn.classList.replace('bg-amber-600', 'bg-brand-600');
-
-            if (state.timerMode === 'stopwatch') {
-                state.timerRemaining = 0;
-            } else {
-                state.timerRemaining = state.timerDuration;
-            }
+            if (timerRunning) toggleTimer();
+            timerSeconds = timerMode === 'pomodoro' ? 25 * 60 : 0;
             updateTimerDisplay();
         }
 
         function updateTimerDisplay() {
-            const display = document.getElementById('timer-display');
-            const total = state.timerMode === 'stopwatch' ? state.timerRemaining : state.timerRemaining;
-            const mins = Math.floor(total / 60);
-            const secs = total % 60;
-            display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            const hrs = Math.floor(timerSeconds / 3600);
+            const mins = Math.floor((timerSeconds % 3600) / 60);
+            const secs = timerSeconds % 60;
 
-            // Update Ring Progress
-            const ring = document.getElementById('timer-progress-ring');
-            if (state.timerMode !== 'stopwatch' && state.timerDuration > 0) {
-                const fraction = state.timerRemaining / state.timerDuration;
-                const offset = 700 * (1 - fraction);
-                ring.style.strokeDashoffset = offset;
+            const formatted = `${hrs > 0 ? String(hrs).padStart(2, '0') + ':' : ''}${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = formatted;
+
+            // Update Circle Progress
+            const circle = document.getElementById('timer-progress-circle');
+            if (timerMode === 'pomodoro') {
+                const total = 25 * 60;
+                const offset = 691 - (691 * timerSeconds) / total;
+                circle.style.strokeDashoffset = offset;
             } else {
-                ring.style.strokeDashoffset = 0;
+                circle.style.strokeDashoffset = 0;
             }
         }
 
-        function saveCurrentSessionManually() {
-            if (state.timerMode === 'stopwatch' && state.timerRemaining > 60) {
-                saveSessionRecord(state.timerRemaining, state.activeSubject);
-                resetTimer();
-            } else {
-                alert("Oturumu kaydetmek için en az 1 dakika çalışılmış olmalı!");
+        function saveTimerSession() {
+            const subject = document.getElementById('timer-subject-select').value;
+            if (timerSeconds > 10 && timerMode === 'stopwatch') {
+                const mins = Math.round(timerSeconds / 60);
+                timerLogs.unshift({
+                    subject: subject,
+                    duration: mins,
+                    date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                localStorage.setItem('yks_timer_logs', JSON.stringify(timerLogs));
+                renderTimerLogs();
+                updateTotalStudyBadge();
             }
         }
 
-        function saveSessionRecord(durationSecs, subject) {
-            state.sessions.unshift({
-                id: Date.now(),
-                subject: subject,
-                durationSecs: durationSecs,
-                timeStr: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
-            });
-            saveState();
-            renderSessions();
-        }
-
-        function updateDailyTarget() {
-            const val = parseInt(document.getElementById('input-daily-target').value);
-            if (val && val > 0) {
-                state.dailyTargetSeconds = val * 3600;
-                saveState();
-                updateDailyProgress();
-            }
-        }
-
-        function updateDailyProgress() {
-            const hours = Math.floor(state.todaySeconds / 3600);
-            const mins = Math.floor((state.todaySeconds % 3600) / 60);
-            const secs = state.todaySeconds % 60;
-            document.getElementById('today-total-time').innerText = 
-                `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-            const targetHours = Math.round(state.dailyTargetSeconds / 3600);
-            document.getElementById('target-display').innerText = `${targetHours.toString().padStart(2, '0')}:00:00`;
-
-            const percentage = Math.min(100, (state.todaySeconds / state.dailyTargetSeconds) * 100);
-            document.getElementById('target-progress-bar').style.width = `${percentage}%`;
-        }
-
-        function renderSessions() {
-            const list = document.getElementById('session-log-list');
-            document.getElementById('session-count-badge').innerText = `${state.sessions.length} Oturum`;
-
-            if (state.sessions.length === 0) {
-                list.innerHTML = `<div class="text-center py-8 text-xs text-slate-500">Henüz çalışma kaydı yok. Sayacı çalıştır ve başla!</div>`;
+        function renderTimerLogs() {
+            const container = document.getElementById('session-log');
+            if (timerLogs.length === 0) {
+                container.innerHTML = `<p class="text-center py-4 text-xs text-slate-500">Henüz kaydedilmiş oturum yok.</p>`;
                 return;
             }
-
-            list.innerHTML = state.sessions.map(s => {
-                const mins = Math.round(s.durationSecs / 60);
-                return `
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-900/60 border border-slate-800 text-xs">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-2.5 h-2.5 rounded-full bg-brand-500"></div>
-                        <span class="font-bold text-slate-200">${s.subject}</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-slate-400">
-                        <span><i class="fa-regular fa-clock mr-1"></i>${mins} dk</span>
-                        <span class="text-[10px] text-slate-500">${s.timeStr}</span>
-                    </div>
-                </div>
-                `;
-            }).join('');
-        }
-
-        function getSampleEyupBPlaylist() {
-            return {
-                id: 'eyupb_geometri_demo',
-                title: 'Eyüp B. - YKS 2026 Geometri Kampı',
-                videos: [
-                    { id: 'v1', youtubeId: '2XvG2K1-m6A', title: '1. Doğruda Açılar - Ders 1 | Eyüp B.', topic: 'Doğruda Açılar', completed: true },
-                    { id: 'v2', youtubeId: '3XvG2K1-m6B', title: '2. Doğruda Açılar Soru Çözümü - Ders 2', topic: 'Doğruda Açılar', completed: false },
-                    { id: 'v3', youtubeId: '4XvG2K1-m6C', title: '3. Üçgende Açılar - Konu Anlatımı 1', topic: 'Üçgende Açılar', completed: false },
-                    { id: 'v4', youtubeId: '5XvG2K1-m6D', title: '4. Üçgende Açılar - Birebir ÖSYM Soruları', topic: 'Üçgende Açılar', completed: false },
-                    { id: 'v5', youtubeId: '6XvG2K1-m6E', title: '5. Özel Üçgenler - Dik Üçgen & Pisagor', topic: 'Özel Üçgenler', completed: false },
-                    { id: 'v6', youtubeId: '7XvG2K1-m6F', title: '6. Özel Üçgenler - 30-60-90 ve İkizkenar', topic: 'Özel Üçgenler', completed: false }
-                ],
-                topics: ['Doğruda Açılar', 'Üçgende Açılar', 'Özel Üçgenler']
-            };
-        }
-
-        function loadPresetPlaylist(presetKey) {
-            if (presetKey === 'eyupb_geometri') {
-                const sample = getSampleEyupBPlaylist();
-                if (!state.playlists.find(p => p.id === sample.id)) {
-                    state.playlists.unshift(sample);
-                }
-                state.activePlaylistId = sample.id;
-                saveState();
-                renderPlaylists();
-            }
-        }
-
-        function importPlaylist() {
-            const urlInput = document.getElementById('input-playlist-url').value.trim();
-            if (!urlInput) {
-                alert("Lütfen geçerli bir YouTube Oynatma Listesi URL'si veya ID'si girin!");
-                return;
-            }
-
-            // Extract Playlist ID from URL or Raw Input
-            let playlistId = urlInput;
-            if (urlInput.includes('list=')) {
-                playlistId = urlInput.split('list=')[1].split('&')[0];
-            }
-
-            // Create interactive Mocked Playlist ready for YouTube Data API
-            const newPlaylist = {
-                id: playlistId,
-                title: `YouTube Oynatma Listesi (${playlistId.substring(0, 8)}...)`,
-                videos: [
-                    { id: playlistId + '_1', youtubeId: 'dQw4w9WgXcQ', title: '1. Giriş & Konu Anlatımı Part 1', topic: 'Genel Konular', completed: false },
-                    { id: playlistId + '_2', youtubeId: 'dQw4w9WgXcQ', title: '2. Detaylı Soru Çözümleri Part 2', topic: 'Genel Konular', completed: false },
-                    { id: playlistId + '_3', youtubeId: 'dQw4w9WgXcQ', title: '3. ÖSYM Tipi Yeni Nesil Sorular', topic: 'İleri Seviye', completed: false }
-                ],
-                topics: ['Genel Konular', 'İleri Seviye']
-            };
-
-            state.playlists.unshift(newPlaylist);
-            state.activePlaylistId = newPlaylist.id;
-            document.getElementById('input-playlist-url').value = '';
-            saveState();
-            renderPlaylists();
-            alert("Oynatma listesi başarıyla eklendi! Videoları izleyip konularına göre ayırabilirsiniz. 🎉");
-        }
-
-        function renderPlaylists() {
-            const menu = document.getElementById('playlists-menu');
-            document.getElementById('playlist-count-tag').innerText = state.playlists.length;
-
-            if (state.playlists.length === 0) {
-                menu.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center">Liste bulunmuyor.</div>`;
-                renderActivePlaylistVideos();
-                return;
-            }
-
-            menu.innerHTML = state.playlists.map(pl => {
-                const isActive = pl.id === state.activePlaylistId;
-                const completedCount = pl.videos.filter(v => v.completed).length;
-                return `
-                <div onclick="setActivePlaylist('${pl.id}')" class="p-3 rounded-2xl cursor-pointer transition-all ${isActive ? 'bg-brand-600/30 border border-brand-500/50 text-white' : 'bg-slate-900/60 hover:bg-slate-800 text-slate-400 border border-slate-800'}">
-                    <div class="font-semibold text-xs line-clamp-1">${pl.title}</div>
-                    <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2">
-                        <span>${pl.videos.length} Video</span>
-                        <span class="text-emerald-400 font-medium">${completedCount}/${pl.videos.length} Bitti</span>
-                    </div>
-                </div>
-                `;
-            }).join('');
-
-            renderActivePlaylistVideos();
-        }
-
-        function setActivePlaylist(id) {
-            state.activePlaylistId = id;
-            renderPlaylists();
-        }
-
-        function renderActivePlaylistVideos() {
-            const current = state.playlists.find(p => p.id === state.activePlaylistId);
-            const container = document.getElementById('video-items-list');
-            const titleEl = document.getElementById('active-playlist-title');
-            const statsEl = document.getElementById('active-playlist-stats');
-            const progressBar = document.getElementById('playlist-progress-bar');
-            const topicSelect = document.getElementById('filter-topic-select');
-
-            if (!current) {
-                titleEl.innerText = "Bir Oynatma Listesi Seçin";
-                statsEl.innerText = "Toplam 0 video";
-                container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">Oynatma listesi ekleyerek başlayın!</div>`;
-                return;
-            }
-
-            titleEl.innerText = current.title;
-            const completedCount = current.videos.filter(v => v.completed).length;
-            const percent = current.videos.length ? Math.round((completedCount / current.videos.length) * 100) : 0;
-            statsEl.innerText = `Toplam ${current.videos.length} video • ${completedCount} tamamlandı (%${percent})`;
-            progressBar.style.width = `${percent}%`;
-
-            // Populate Topics Filter Dropdown
-            topicSelect.innerHTML = `<option value="ALL">Tüm Konular (${current.videos.length})</option>` + 
-                (current.topics || []).map(t => `<option value="${t}">${t}</option>`).join('');
-
-            // Render Video Items
-            const selectedTopic = topicSelect.value;
-            const filteredVideos = selectedTopic === 'ALL' ? current.videos : current.videos.filter(v => v.topic === selectedTopic);
-
-            if (filteredVideos.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Bu konu başlığında henüz video bulunmuyor.</div>`;
-                return;
-            }
-
-            container.innerHTML = filteredVideos.map((vid, idx) => `
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl ${vid.completed ? 'bg-emerald-950/20 border border-emerald-500/20' : 'bg-slate-900/70 border border-slate-800'} hover:border-slate-700 transition-all">
-                    <div class="flex items-center gap-3">
-                        <input type="checkbox" ${vid.completed ? 'checked' : ''} onchange="toggleVideoComplete('${vid.id}')" class="w-4 h-4 rounded border-slate-700 text-brand-600 focus:ring-brand-500 bg-slate-800 cursor-pointer">
-                        <div>
-                            <h4 class="text-xs sm:text-sm font-semibold ${vid.completed ? 'line-through text-slate-500' : 'text-slate-200'}">${vid.title}</h4>
-                            <span class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-brand-400 font-medium">${vid.topic || 'Genel'}</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 self-end sm:self-center">
-                        <button onclick="playYouTubeVideo('${vid.youtubeId}', '${vid.title}')" class="px-3 py-1.5 rounded-xl bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
-                            <i class="fa-solid fa-play"></i> İzle
-                        </button>
-                    </div>
+            container.innerHTML = timerLogs.slice(0, 5).map(log => `
+                <div class="flex items-center justify-between bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
+                    <span class="font-medium text-white">${log.subject}</span>
+                    <span class="text-xs text-brand-400 font-bold">${log.duration} Dakika</span>
+                    <span class="text-[10px] text-slate-500">${log.date}</span>
                 </div>
             `).join('');
         }
 
-        function filterVideosByTopic() {
-            renderActivePlaylistVideos();
+        function updateTotalStudyBadge() {
+            const totalMins = timerLogs.reduce((acc, curr) => acc + curr.duration, 0);
+            document.getElementById('total-study-time-badge').innerText = `Toplam: ${totalMins} dk`;
         }
 
-        function toggleVideoComplete(videoId) {
-            const current = state.playlists.find(p => p.id === state.activePlaylistId);
-            if (!current) return;
-            const vid = current.videos.find(v => v.id === videoId);
-            if (vid) {
-                vid.completed = !vid.completed;
-                saveState();
-                renderPlaylists();
-            }
-        }
-
-        function promptNewTopicTag() {
-            const current = state.playlists.find(p => p.id === state.activePlaylistId);
-            if (!current) {
-                alert("Önce bir oynatma listesi seçmelisiniz!");
-                return;
-            }
-            const tag = prompt("Yeni Konu Etiketi Girin (Örn: Türev, Integral, Doğruda Açılar):");
-            if (tag && tag.trim()) {
-                if (!current.topics) current.topics = [];
-                if (!current.topics.includes(tag.trim())) {
-                    current.topics.push(tag.trim());
-                    saveState();
-                    renderActivePlaylistVideos();
-                }
-            }
-        }
-
-        function playYouTubeVideo(youtubeId, title) {
-            const playerContainer = document.getElementById('player-container');
-            const iframe = document.getElementById('youtube-iframe');
-            document.getElementById('current-playing-title').innerText = title;
-            iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1`;
-            playerContainer.classList.remove('hidden');
-            playerContainer.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function closeVideoPlayer() {
-            const playerContainer = document.getElementById('player-container');
-            const iframe = document.getElementById('youtube-iframe');
-            iframe.src = "";
-            playerContainer.classList.add('hidden');
-        }
-
+        // --- STREAMING_CHUNK:Writing Schedule & Net Tracker Functions... ---
+        // --- WEEKLY SCHEDULE CONTROLLER ---
         function renderSchedule() {
-            const days = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
-            days.forEach(day => {
-                const container = document.getElementById(`tasks-${day}`);
-                const tasks = state.scheduleTasks[day] || [];
+            const grid = document.getElementById('weekly-grid');
+            grid.innerHTML = '';
 
-                if (tasks.length === 0) {
-                    container.innerHTML = `<div class="text-[11px] text-slate-600 text-center py-6">Görev yok</div>`;
-                    return;
-                }
+            DAYS.forEach(day => {
+                const items = schedule[day] || [];
+                const dayCard = document.createElement('div');
+                dayCard.className = 'bg-darkcard border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3 min-h-[220px]';
 
-                container.innerHTML = tasks.map((t, idx) => `
-                    <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-start justify-between gap-2 text-xs">
-                        <div>
-                            <span class="text-[9px] font-bold text-brand-400 block uppercase tracking-wider">${t.type}</span>
-                            <span class="font-medium text-slate-200 block mt-0.5">${t.title}</span>
-                        </div>
-                        <button onclick="deleteScheduleTask('${day}', ${idx})" class="text-slate-600 hover:text-red-400 text-xs">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                dayCard.innerHTML = `
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <span class="font-bold text-white text-sm">${day}</span>
+                        <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md">${items.length} Görev</span>
                     </div>
-                `).join('');
+                    <div class="space-y-2 flex-1">
+                        ${items.map((item, idx) => `
+                            <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800 text-xs flex justify-between items-center group">
+                                <div>
+                                    <p class="font-medium text-slate-200">${item.subject}</p>
+                                    <span class="text-[10px] text-brand-400">${item.target}</span>
+                                </div>
+                                <button onclick="deleteScheduleItem('${day}',${idx})" class="text-slate-500 hover:text-rose-400 opacity-80 group-hover:opacity-100">
+                                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                grid.appendChild(dayCard);
             });
+            lucide.createIcons();
         }
 
-        function openAddTaskModal() {
-            document.getElementById('modal-add-task').classList.remove('hidden');
-        }
+        function handleAddSchedule(e) {
+            e.preventDefault();
+            const day = document.getElementById('schedule-day-select').value;
+            const subject = document.getElementById('schedule-subject-input').value;
+            const target = document.getElementById('schedule-target-input').value;
 
-        function closeAddTaskModal() {
-            document.getElementById('modal-add-task').classList.add('hidden');
-        }
+            if (!schedule[day]) schedule[day] = [];
+            schedule[day].push({ subject, target });
 
-        function saveScheduleTask() {
-            const day = document.getElementById('task-day-select').value;
-            const title = document.getElementById('task-title-input').value.trim();
-            const type = document.getElementById('task-type-select').value;
-
-            if (!title) {
-                alert("Lütfen ders/konu başlığını girin!");
-                return;
-            }
-
-            if (!state.scheduleTasks[day]) state.scheduleTasks[day] = [];
-            state.scheduleTasks[day].push({ title, type });
-            saveState();
+            localStorage.setItem('yks_schedule', JSON.stringify(schedule));
             renderSchedule();
-            closeAddTaskModal();
-            document.getElementById('task-title-input').value = '';
+            toggleModal('schedule-modal');
+            document.getElementById('add-schedule-form').reset();
         }
 
-        function deleteScheduleTask(day, index) {
-            state.scheduleTasks[day].splice(index, 1);
-            saveState();
+        function deleteScheduleItem(day, index) {
+            schedule[day].splice(index, 1);
+            localStorage.setItem('yks_schedule', JSON.stringify(schedule));
             renderSchedule();
         }
 
-        function openNetModal() {
-            document.getElementById('modal-add-net').classList.remove('hidden');
-        }
+        // --- TYT / AYT NET TRACKER CONTROLLER ---
+        function handleAddNet(e) {
+            e.preventDefault();
+            const type = document.getElementById('net-type').value;
+            const date = document.getElementById('net-date').value;
+            const title = document.getElementById('net-title').value;
+            const sub1 = parseFloat(document.getElementById('net-sub1').value) || 0;
+            const sub2 = parseFloat(document.getElementById('net-sub2').value) || 0;
+            const sub3 = parseFloat(document.getElementById('net-sub3').value) || 0;
+            const sub4 = parseFloat(document.getElementById('net-sub4').value) || 0;
 
-        function closeNetModal() {
-            document.getElementById('modal-add-net').classList.add('hidden');
-        }
+            const total = sub1 + sub2 + sub3 + sub4;
 
-        function saveNetEntry() {
-            const type = document.getElementById('net-exam-type').value;
-            const name = document.getElementById('net-exam-name').value.trim() || 'Genel Deneme';
-            const turkce = parseFloat(document.getElementById('net-turkce').value) || 0;
-            const matematik = parseFloat(document.getElementById('net-matematik').value) || 0;
-            const fen = parseFloat(document.getElementById('net-fen').value) || 0;
-            const sosyal = parseFloat(document.getElementById('net-sosyal').value) || 0;
+            netLogs.push({ id: Date.now(), type, date, title, sub1, sub2, sub3, sub4, total });
+            netLogs.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            const totalNet = turkce + matematik + fen + sosyal;
-
-            state.netEntries.push({
-                id: Date.now(),
-                type,
-                name,
-                turkce,
-                matematik,
-                fen,
-                sosyal,
-                totalNet,
-                date: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
-            });
-
-            saveState();
+            localStorage.setItem('yks_nets', JSON.stringify(netLogs));
             renderNetLogs();
-            updateChartData();
-            closeNetModal();
+            updateChart();
+            toggleModal('net-modal');
+            document.getElementById('add-net-form').reset();
+        }
+
+        function deleteNetLog(id) {
+            netLogs = netLogs.filter(item => item.id !== id);
+            localStorage.setItem('yks_nets', JSON.stringify(netLogs));
+            renderNetLogs();
+            updateChart();
         }
 
         function renderNetLogs() {
-            const container = document.getElementById('net-logs-container');
-            if (state.netEntries.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-xs text-slate-500">Henüz deneme sonucu eklenmedi.</div>`;
+            const body = document.getElementById('net-table-body');
+            if (netLogs.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-500">Henüz girilmiş deneme yok.</td></tr>`;
                 return;
             }
 
-            container.innerHTML = state.netEntries.slice().reverse().map(e => `
-                <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-bold text-white"><span class="text-brand-500 mr-1.5">[${e.type}]</span>${e.name}</span>
-                        <span class="text-emerald-400 font-extrabold text-sm">${e.totalNet.toFixed(2)} Net</span>
-                    </div>
-                    <div class="grid grid-cols-4 gap-1 text-[10px] text-slate-400 text-center bg-slate-950/40 p-1.5 rounded-xl">
-                        <div>TR: <span class="text-slate-200 font-semibold">${e.turkce}</span></div>
-                        <div>MAT: <span class="text-slate-200 font-semibold">${e.matematik}</span></div>
-                        <div>FEN: <span class="text-slate-200 font-semibold">${e.fen}</span></div>
-                        <div>SOS: <span class="text-slate-200 font-semibold">${e.sosyal}</span></div>
-                    </div>
-                </div>
+            body.innerHTML = netLogs.map(item => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3 text-xs text-slate-400">${item.date}</td>
+                    <td class="p-3 font-semibold text-white">${item.title}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.type === 'TYT' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400'}">${item.type}</span></td>
+                    <td class="p-3 text-xs">${item.sub1} / ${item.sub2}</td>
+                    <td class="p-3 text-xs">${item.sub3} / ${item.sub4}</td>
+                    <td class="p-3 text-right font-bold text-brand-400">${item.total.toFixed(2)}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteNetLog(${item.id})" class="text-slate-500 hover:text-rose-400">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
             `).join('');
+            lucide.createIcons();
         }
 
         function initChart() {
@@ -1115,16 +830,17 @@
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: netLogs.map(l => l.title),
                     datasets: [{
                         label: 'Toplam Net',
-                        data: [],
+                        data: netLogs.map(l => l.total),
                         borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.15)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
                         fill: true,
                         tension: 0.3,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#6366f1'
+                        pointBackgroundColor: '#818cf8',
+                        pointRadius: 5
                     }]
                 },
                 options: {
@@ -1134,55 +850,25 @@
                         legend: { display: false }
                     },
                     scales: {
-                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                        x: {
+                            grid: { color: '#1e293b' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            grid: { color: '#1e293b' },
+                            ticks: { color: '#94a3b8' }
+                        }
                     }
                 }
             });
-            updateChartData();
         }
 
-        function switchChartType(type) {
-            currentChartType = type;
-            document.getElementById('btn-chart-tyt').className = `px-3 py-1 rounded-xl text-xs font-semibold ${type === 'TYT' ? 'bg-brand-600 text-white' : 'bg-slate-800 text-slate-400'}`;
-            document.getElementById('btn-chart-ayt').className = `px-3 py-1 rounded-xl text-xs font-semibold ${type === 'AYT' ? 'bg-brand-600 text-white' : 'bg-slate-800 text-slate-400'}`;
-            updateChartData();
-        }
-
-        function updateChartData() {
-            if (!chartInstance) return;
-            const filtered = state.netEntries.filter(e => e.type === currentChartType);
-            chartInstance.data.labels = filtered.map(e => e.date);
-            chartInstance.data.datasets[0].data = filtered.map(e => e.totalNet);
-            chartInstance.update();
-        }
-
-        function playCompletionSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-                osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.3); // A5
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.3);
-            } catch(e) {}
-        }
-
-        function initQuotes() {
-            const quotes = [
-                '"Gelecek, bugün ne yaptığına bağlıdır." - Mahatma Gandhi',
-                '"Zafer, zafer benimdir diyebilenindir!" - M. Kemal Atatürk',
-                '"Büyük işler, küçük adımların birleşmesiyle oluşur."',
-                '"Zorluklar, başarının değerini artıran süslerdir."'
-            ];
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            document.getElementById('motivational-quote').innerText = randomQuote;
+        function updateChart() {
+            if (chartInstance) {
+                chartInstance.data.labels = netLogs.map(l => l.title);
+                chartInstance.data.datasets[0].data = netLogs.map(l => l.total);
+                chartInstance.update();
+            }
         }
     </script>
 </body>
